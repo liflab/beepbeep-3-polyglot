@@ -1,0 +1,36 @@
+# BNF grammar for an LTL interpreter with extensions
+# NOTE: your system needs to support UTF-8 characters to correctly
+# display all the symbols!
+
+<φ> := <F> | <U> | <G> | <X> | <C> | <and> | <or> | <not> 
+       | <implies> | <forall> | <exists> | <atom> ;
+
+# Temporal operators
+
+<F> := F ( <φ> ) ;
+<G> := G ( <φ> ) ;
+<X> := X ( <φ> ) ;
+<U> := ( <φ> ) U ( <φ> );
+
+# Boolean connectives
+
+<and>     := ( <φ> ) ∧ ( <φ> );
+<or>      := ( <φ> ) ∨ ( <φ> );
+<implies> := ( <φ> ) → ( <φ> );
+<not>     := ¬ ( <φ> );
+
+# Quantifiers
+
+<forall>  := ∀ <var> ∈ <dom-fct> : ( <φ> );
+<exists>  := ∃ <var> ∈ <dom-fct> : ( <φ> );
+
+# The special "counting" operator
+
+<C> := C <num> ( <φ> ) ;
+
+# Numbers
+
+<num> := ^\d+;
+
+# Atoms are not defined in this file, as their syntax depends on the
+# actual type of event in the stream.

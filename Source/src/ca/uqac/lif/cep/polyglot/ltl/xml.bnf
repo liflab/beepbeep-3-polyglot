@@ -1,0 +1,7 @@
+# Sub-grammar for propositional LTL
+
+<atom>     := <equals>;
+
+<equals>   := <xpathfct> = <constant> ;
+<xpathfct> := ^[\w\d/\(\)]+;
+<constant> := ^[\w\d]+;

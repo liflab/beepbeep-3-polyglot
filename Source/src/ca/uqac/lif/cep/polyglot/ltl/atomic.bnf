@@ -1,0 +1,3 @@
+# Sub-grammar for propositional LTL
+
+<atom> := ^[\w\d]+;
