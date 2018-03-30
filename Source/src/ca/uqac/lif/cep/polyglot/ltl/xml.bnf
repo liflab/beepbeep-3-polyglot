@@ -1,7 +1,13 @@
 # Sub-grammar for propositional LTL
 
-<atom>     := <equals>;
-
-<equals>   := <xpathfct> = <constant> ;
+<atom>     := <x-equals> | <v-equals>;
+<x-equals> := <xpathfct> = <constant> ;
 <xpathfct> := ^[\w\d/\(\)]+;
 <constant> := ^[\w\d]+;
+
+# Quantifiers
+
+<dom-fct>  := <xpathfct>;
+<v-equals> := <c-var> = <constant> ;
+<var>      := ^\$[\w\d]+;
+<c-var>    := ^\$[\w\d]+;
