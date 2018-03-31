@@ -1,5 +1,5 @@
 /*
-    A LOLA interpreter for BeepBeep
+    Multiple interpreters for BeepBeep
     Copyright (C) 2017-2018 Sylvain Hallé
 
     This program is free software: you can redistribute it and/or modify

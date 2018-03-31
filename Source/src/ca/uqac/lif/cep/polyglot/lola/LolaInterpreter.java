@@ -18,10 +18,8 @@
 package ca.uqac.lif.cep.polyglot.lola;
 
 import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.cep.Connector;
@@ -31,7 +29,7 @@ import ca.uqac.lif.cep.functions.*;
 import ca.uqac.lif.cep.tmf.*;
 import ca.uqac.lif.cep.util.Numbers;
 
-public class LolaInterpreter extends ca.uqac.lif.cep.dsl.GroupProcessorBuilder
+public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorBuilder
 {
 	/**
 	 * The set of named triggers registered with this interpreter
@@ -40,20 +38,15 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.GroupProcessorBuilder
 
 	public LolaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super();
-		setGrammar(ca.uqac.lif.cep.polyglot.Util.convertStreamToString(LolaInterpreter.class.getResourceAsStream("lola-core.bnf")));
+		setGrammar(getGrammar());
 	}
 	
-	@Override
-	public NamedGroupProcessor build(String expression) throws ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException {
-		Scanner scanner = new Scanner(expression);
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			if (line.trim().isEmpty())
-				continue;
-			super.build(line);
-		}
-		scanner.close();
-		return endOfFileVisit();
+	protected LolaInterpreter(boolean b) throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
+		super();
+	}
+	
+	public String getGrammar() {
+		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(LolaInterpreter.class.getResourceAsStream("lola-core.bnf"));
 	}
 
 	@Builds(rule="<constant-stream>")
@@ -168,11 +161,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.GroupProcessorBuilder
 	}
 	
 	@Override
-	protected synchronized GroupProcessor postVisit(Deque<Object> stack) {
-		return null;
-	}
-	
-	protected synchronized NamedGroupProcessor endOfFileVisit() {
+	public synchronized GroupProcessor endOfFileVisit() {
 		HashMap<String,Fork> m_ins = new HashMap<String,Fork>();
 		HashMap<String,Fork> m_outs = new HashMap<String,Fork>();
 		for (Map.Entry<Object,Fork> entry : m_inputForks.entrySet()) {

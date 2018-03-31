@@ -1,5 +1,5 @@
 /*
-    A LOLA interpreter for BeepBeep
+    Multiple interpreters for BeepBeep
     Copyright (C) 2017-2018 Sylvain Hallé
 
     This program is free software: you can redistribute it and/or modify
@@ -17,37 +17,38 @@
  */
 package ca.uqac.lif.cep.polyglot.lola;
 
+import java.util.HashMap;
+
 import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
+import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.Processor;
 import ca.uqac.lif.cep.functions.Cumulate;
 import ca.uqac.lif.cep.functions.CumulativeFunction;
+import ca.uqac.lif.cep.tmf.Window;
 import ca.uqac.lif.cep.util.Numbers;
 
 public class ExtendedLolaInterpreter extends LolaInterpreter
 {
-
+	protected HashMap<String,NamedGroupProcessor> m_definedBoxes = new HashMap<String,NamedGroupProcessor>();
+	
 	public ExtendedLolaInterpreter() throws InvalidGrammarException {
-		super();
-		// TODO Auto-generated constructor stub
+		super(false);
+		setGrammar(super.getGrammar() + "\n" + getGrammar());
 	}
 	
-	/* TODO: arranger window
-	@Builds(rule="<window>", pop=true, clean=true)
-	public void handleWindow(Object ... args) {
-		stack.pop(); // )
-		int width = ((Number) stack.pop()).intValue();
-		stack.pop(); // ,
-		Processor p = (Processor) stack.pop();
-		stack.pop(); // ,
-		Processor func_p = (Processor) stack.pop();
-		stack.pop(); // (
-		stack.pop(); // win
-		Window w = new Window(func_p, width);
-		Connector.connect(p, w);
-		stack.push(w);
+	@Override
+	public String getGrammar() {
+		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(LolaInterpreter.class.getResourceAsStream("lola-ext.bnf"));
 	}
-	*/
+	
+	@Builds(rule="<window>", pop=true, clean=true)
+	public Processor handleWindow(Object ... args) {
+		Processor phi = (Processor) args[1];
+		Window w = new Window((Processor) args[0], ((Number) args[2]).intValue());
+		Connector.connect(p, w);
+		return add(w);
+	}
 	
 	@Builds(rule="<func-name>", pop=true)
 	public Processor handleFunctionName(Object ... args) {
