@@ -11,7 +11,6 @@ import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.Pullable;
 import ca.uqac.lif.cep.Connector.ConnectorException;
 import ca.uqac.lif.cep.polyglot.lola.ExtendedLolaInterpreter;
-import ca.uqac.lif.cep.polyglot.lola.LolaInterpreter;
 import ca.uqac.lif.cep.polyglot.lola.NamedGroupProcessor;
 import ca.uqac.lif.cep.tmf.QueueSource;
 import ca.uqac.lif.cep.polyglot.Util;
@@ -35,6 +34,23 @@ public class ExtendedLolaInterpreterTest
 		assertEquals(9f, o);
 		o = p.pull();
 		assertEquals(4f, o);
+	}
+	
+	@Test
+	public void testDefineWindow() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
+	{
+		Object o;
+		QueueSource src1 = new QueueSource().setEvents(0, 1, 2, 3, 4);
+		ExtendedLolaInterpreter my_int = new ExtendedLolaInterpreter();
+		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build(Util.convertStreamToString(ExtendedLolaInterpreterTest.class.getResourceAsStream("test2.lola")));
+		Connector.connect(src1, 0, gp, gp.getInputIndex("s1"));
+		Pullable p = gp.getPullableOutput("s");
+		o = p.pull();
+		assertEquals(3, o);
+		o = p.pull();
+		assertEquals(4, o);
+		o = p.pull();
+		assertEquals(5, o);
 	}
 	
 	@Test
@@ -65,7 +81,7 @@ public class ExtendedLolaInterpreterTest
 		source.addEvent(2);
 		source.addEvent(3);
 		source.addEvent(4);
-		LolaInterpreter my_int = new LolaInterpreter();
+		ExtendedLolaInterpreter my_int = new ExtendedLolaInterpreter();
 		String expression = "s2 = win(sum, s1, 2)";
 		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build(expression);
 		Connector.connect(source, 0, gp, gp.getInputIndex("s1"));

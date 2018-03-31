@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
-import ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException;
 import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.GroupProcessor;
 import ca.uqac.lif.cep.Processor;
@@ -106,13 +105,22 @@ public class ExtendedLolaInterpreter extends LolaInterpreter
 	public Processor handleWindow(Object ... args) {
 		Processor phi = (Processor) args[1];
 		Window w = new Window((Processor) args[0], ((Number) args[2]).intValue());
-		Connector.connect(p, w);
+		Connector.connect(phi, w);
 		return add(w);
 	}
 	
 	@Builds(rule="<func-name>", pop=true)
 	public Processor handleFunctionName(Object ... args) {
-		if (((String) args[0]).compareTo("sum") == 0)
+		String name = (String) args[0];
+		if (name.startsWith("$"))
+		{
+			String box_name = name.substring(1);
+			if (m_definedBoxes.containsKey(box_name))
+			{
+				return m_definedBoxes.get(box_name).duplicate();
+			}
+		}
+		if (name.compareTo("sum") == 0)
 			return add(new Cumulate(new CumulativeFunction<Number>(Numbers.addition)));
 		return null;
 	}

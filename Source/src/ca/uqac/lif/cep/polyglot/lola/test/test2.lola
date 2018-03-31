@@ -1,0 +1,4 @@
+define $p(x)
+  y = (x) + (1)
+end define
+s = win($p, s1, 3) 

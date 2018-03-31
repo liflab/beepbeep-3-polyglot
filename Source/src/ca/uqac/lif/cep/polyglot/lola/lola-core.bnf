@@ -3,11 +3,11 @@
 # (C) 2017-2018 Sylvain Hallé
 # ------------------------------------------------------------------
 
-<S>                 := <stream-def> | <trigger> | <template> ;
+<S>                 := <stream-def> | <trigger> ;
 <trigger>           := trigger <string> <stream-exp> ;
 <stream-def>        := <name-def> = <stream-exp> ;
-<stream-exp>        := <if-then-else> | <offset>  
-                       | <binary-op> | <unary-op> | <constant-stream> | <name> ;
+<stream-exp>        := <other> | <if-then-else> | <offset> | <binary-op> | <unary-op>  
+                       | <constant-stream> | <name> ;
 
 # LOLA constructs
 

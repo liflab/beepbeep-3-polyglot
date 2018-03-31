@@ -3,12 +3,7 @@
 # (C) 2017-2018 Sylvain Hallé
 # ------------------------------------------------------------------
 
-<S>                 := <template> ;
-<stream-exp>        := <window> | <mutator> | <box-call> ;
-
-<template>          := <name-def> \u003c <param-list> \u003e :
-                        inv ( <stream-exp> ) ext ( <stream-exp> )
-                        \u003a\u003d ( <stream-group> ) ;
+<other>        := <window> | <mutator> | <box-call> ;
 
 <box-call>          := ^\$[\w\d]+\(.*?\);
 
@@ -17,4 +12,4 @@
 
 # Function names
 
-<func-name>         := sum | avg ;
+<func-name>         := ^[\$\w\d]+;
