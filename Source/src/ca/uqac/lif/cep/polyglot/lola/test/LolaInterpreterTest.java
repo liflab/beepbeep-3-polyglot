@@ -19,7 +19,6 @@ package ca.uqac.lif.cep.polyglot.lola.test;
 
 import static org.junit.Assert.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
@@ -115,7 +114,6 @@ public class LolaInterpreterTest
 	}
 		
 	@Test
-	@Ignore
 	public void testTrigger1() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
 	{
 		@SuppressWarnings("unused")
@@ -128,7 +126,6 @@ public class LolaInterpreterTest
 		LolaInterpreter my_int = new LolaInterpreter();
 		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build("s2 = s1\ntrigger tr1 (s2) > (2)");
 		Connector.connect(source, 0, gp, gp.getInputIndex("s1"));
-		//Pullable pul = gp.getPullableOutput("s2");
 		TestTriggerable tt = new TestTriggerable();
 		Trigger t = my_int.getTrigger("tr1");
 		my_int.setTriggerable("tr1", tt);

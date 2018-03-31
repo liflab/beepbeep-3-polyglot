@@ -21,6 +21,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.cep.Connector;
@@ -40,6 +41,19 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.GroupProcessorBuilder
 	public LolaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super();
 		setGrammar(ca.uqac.lif.cep.polyglot.Util.convertStreamToString(LolaInterpreter.class.getResourceAsStream("lola-core.bnf")));
+	}
+	
+	@Override
+	public NamedGroupProcessor build(String expression) throws ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException {
+		Scanner scanner = new Scanner(expression);
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
+			if (line.trim().isEmpty())
+				continue;
+			super.build(line);
+		}
+		scanner.close();
+		return endOfFileVisit();
 	}
 
 	@Builds(rule="<constant-stream>")
@@ -155,6 +169,10 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.GroupProcessorBuilder
 	
 	@Override
 	protected synchronized GroupProcessor postVisit(Deque<Object> stack) {
+		return null;
+	}
+	
+	protected synchronized NamedGroupProcessor endOfFileVisit() {
 		HashMap<String,Fork> m_ins = new HashMap<String,Fork>();
 		HashMap<String,Fork> m_outs = new HashMap<String,Fork>();
 		for (Map.Entry<Object,Fork> entry : m_inputForks.entrySet()) {
