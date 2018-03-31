@@ -17,8 +17,7 @@
  */
 
 /**
- * Main package of the Polyglot palette. This package contains mostly
- * utility methods and a command-line "main" class.
+ * A LOLA interpreter for BeepBeep.
  * @author Sylvain Hallé
  */
-package ca.uqac.lif.cep.polyglot;
+package ca.uqac.lif.cep.polyglot.lola;

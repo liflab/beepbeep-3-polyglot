@@ -1,0 +1,18 @@
+# ------------------------------------------------------------------
+# Extensions to LOLA's grammar
+# (C) 2017-2018 Sylvain Hallé
+# ------------------------------------------------------------------
+
+<S>                 := <template> ;
+<stream-exp>        := <window> | <mutator> ;
+
+<template>          := <name-def> \u003c <param-list> \u003e :
+                        inv ( <stream-exp> ) ext ( <stream-exp> )
+                        \u003a\u003d ( <stream-group> ) ;
+
+<window>            := win ( <func-name> , <name> , <number> ) ;
+<mutator>           := convert <name> into <constant> ;
+
+# Function names
+
+<func-name>         := sum | avg ;

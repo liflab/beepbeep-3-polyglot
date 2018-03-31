@@ -1,0 +1,39 @@
+# ------------------------------------------------------------------
+# A grammar for LOLA stream specifications
+# (C) 2017-2018 Sylvain Hallé
+# ------------------------------------------------------------------
+
+<S>                 := <stream-def> | <trigger> | <template> ;
+<trigger>           := trigger <string> <stream-exp> ;
+<stream-def>        := <name-def> = <stream-exp> ;
+<stream-exp>        := <if-then-else> | <offset>  
+                       | <binary-op> | <unary-op> | <constant-stream> | <name> ;
+
+# LOLA constructs
+
+<if-then-else>      := ite ( <stream-exp> , <stream-exp> , <stream-exp> ) ;
+<offset>            := <name-def> [ <number> , <constant> ] ;
+
+# Binary operators
+
+<binary-op>         := <plus> | <and> | <or> | <gt> | <lt> ;
+<plus>              := ( <stream-exp> ) + ( <stream-exp> ) ;
+<and>               := ( <stream-exp> ) & ( <stream-exp> ) ;
+<or>                := ( <stream-exp> ) \u007c ( <stream-exp> ) ;
+<lt>                := ( <stream-exp> ) \u003c ( <stream-exp> ) ;
+<gt>                := ( <stream-exp> ) \u003e ( <stream-exp> ) ;
+
+# Unary operators
+
+<unary-op>          := <not> ;
+<not>               := ! ( <stream-exp> ) ;
+
+# Stream names
+
+<name-def>          := ^[\d\w]+;
+<name>              := ^[\d\w]+;
+<number>            := ^-{0,1}\d+;
+<string>            := ^[\d\w]+;
+<constant-stream>   := <boolean> | <number> ;
+<constant>          := <boolean> | <number> | <name-def> ;
+<boolean>           := true | false ;
