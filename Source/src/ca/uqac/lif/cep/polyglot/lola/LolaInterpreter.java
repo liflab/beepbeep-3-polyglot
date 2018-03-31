@@ -182,6 +182,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 		for (Map.Entry<String,Fork> entry : m_ins.entrySet()) {
 			gp.associateInput(i, entry.getValue(), 0);
 			gp.setInputName(i, entry.getKey());
+			gp.addProcessor(entry.getValue());
 			i++;
 		}
 		i = 0;
@@ -190,7 +191,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 			f.extendOutputArity(1);
 			Passthrough pt = new Passthrough();
 			Connector.connect(f, pt);
-			gp.addProcessor(pt);
+			gp.addProcessors(f, pt);
 			gp.associateOutput(i, pt, 0);
 			gp.setOutputName(i, entry.getKey());
 			i++;

@@ -33,6 +33,16 @@ public class NamedGroupProcessor extends GroupProcessor
 		m_outNames = new HashMap<String,Integer>();
 	}
 	
+	@Override
+	public NamedGroupProcessor duplicate()
+	{
+		NamedGroupProcessor ngp = new NamedGroupProcessor(getInputArity(), getOutputArity());
+		cloneInto(ngp);
+		ngp.m_inNames.putAll(m_inNames);
+		ngp.m_outNames.putAll(m_outNames);
+		return ngp;
+	}
+	
 	public NamedGroupProcessor setInputName(int index, String name)
 	{
 		m_inNames.put(name, index);
@@ -78,5 +88,15 @@ public class NamedGroupProcessor extends GroupProcessor
 	public void connectInputTo(Processor p, int i, String name)
 	{
 		Connector.connect(p, i, this, m_inNames.get(name));
+	}
+	
+	public void orderInputNumbers(String ... names)
+	{
+		HashMap<String,Integer> new_map = new HashMap<String,Integer>();
+		for (Map.Entry<String,Integer> entry : m_inNames.entrySet())
+		{
+			new_map.put(names[entry.getValue()], entry.getValue());
+		}
+		m_inNames = new_map;
 	}
 }

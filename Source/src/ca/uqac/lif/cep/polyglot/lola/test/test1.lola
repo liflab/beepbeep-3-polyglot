@@ -1,0 +1,4 @@
+define $p(x,y)
+out = (x) + (y)
+end define
+s = $p(s1, s2)

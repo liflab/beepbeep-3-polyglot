@@ -10,12 +10,33 @@ import ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException;
 import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.Pullable;
 import ca.uqac.lif.cep.Connector.ConnectorException;
+import ca.uqac.lif.cep.polyglot.lola.ExtendedLolaInterpreter;
 import ca.uqac.lif.cep.polyglot.lola.LolaInterpreter;
 import ca.uqac.lif.cep.polyglot.lola.NamedGroupProcessor;
 import ca.uqac.lif.cep.tmf.QueueSource;
+import ca.uqac.lif.cep.polyglot.Util;
 
 public class ExtendedLolaInterpreterTest 
 {
+	@Test
+	public void testDefine1() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
+	{
+		Object o;
+		QueueSource src1 = new QueueSource().setEvents(0, 1, 2);
+		QueueSource src2 = new QueueSource().setEvents(5, 8, 2);
+		ExtendedLolaInterpreter my_int = new ExtendedLolaInterpreter();
+		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build( Util.convertStreamToString(ExtendedLolaInterpreterTest.class.getResourceAsStream("test1.lola")));
+		Connector.connect(src1, 0, gp, gp.getInputIndex("s1"));
+		Connector.connect(src2, 0, gp, gp.getInputIndex("s2"));
+		Pullable p = gp.getPullableOutput("s");
+		o = p.pull();
+		assertEquals(5f, o);
+		o = p.pull();
+		assertEquals(9f, o);
+		o = p.pull();
+		assertEquals(4f, o);
+	}
+	
 	@Test
 	public void testMutator() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
 	{
@@ -24,7 +45,7 @@ public class ExtendedLolaInterpreterTest
 		source.addEvent(1);
 		source.addEvent(2);
 		source.addEvent(3);
-		LolaInterpreter my_int = new LolaInterpreter();
+		ExtendedLolaInterpreter my_int = new ExtendedLolaInterpreter();
 		String expression = "s2 = convert s1 into 1";
 		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build(expression);
 		Connector.connect(source, 0, gp, gp.getInputIndex("s1"));

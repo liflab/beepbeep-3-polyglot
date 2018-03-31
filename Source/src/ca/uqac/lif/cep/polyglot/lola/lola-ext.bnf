@@ -4,11 +4,13 @@
 # ------------------------------------------------------------------
 
 <S>                 := <template> ;
-<stream-exp>        := <window> | <mutator> ;
+<stream-exp>        := <window> | <mutator> | <box-call> ;
 
 <template>          := <name-def> \u003c <param-list> \u003e :
                         inv ( <stream-exp> ) ext ( <stream-exp> )
                         \u003a\u003d ( <stream-group> ) ;
+
+<box-call>          := ^\$[\w\d]+\(.*?\);
 
 <window>            := win ( <func-name> , <name> , <number> ) ;
 <mutator>           := convert <name> into <constant> ;
