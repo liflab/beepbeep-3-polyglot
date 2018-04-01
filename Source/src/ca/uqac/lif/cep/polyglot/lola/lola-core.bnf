@@ -37,3 +37,7 @@
 <constant-stream>   := <boolean> | <number> ;
 <constant>          := <boolean> | <number> | <name-def> ;
 <boolean>           := true | false ;
+
+# To allow extensions with other constructs in a separate file
+
+<other>             := foo;

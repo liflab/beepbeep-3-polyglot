@@ -54,7 +54,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 		Object value = stack.pop();
 		QueueSource qs = new QueueSource(1);
 		qs.addEvent(value);
-		stack.push(qs);
+		stack.push(add(qs));
 	}
 
 	@Builds(rule="<gt>", pop=true, clean=true)
@@ -176,6 +176,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 			}
 		}
 		NamedGroupProcessor gp = new NamedGroupProcessor(m_ins.size(), m_outs.size());
+		gp.notifySources(true);
 		for (Processor in_p : m_processors)
 			gp.addProcessor(in_p);
 		int i = 0;

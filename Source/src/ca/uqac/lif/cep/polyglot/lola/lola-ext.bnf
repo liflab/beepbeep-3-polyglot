@@ -3,12 +3,13 @@
 # (C) 2017-2018 Sylvain Hallé
 # ------------------------------------------------------------------
 
-<other>        := <window> | <mutator> | <box-call> ;
+<other>        := <window> | <mutator> | <gen-offset> | <box-call> ;
 
 <box-call>          := ^\$[\w\d]+\(.*?\);
 
 <window>            := win ( <func-name> , <name> , <number> ) ;
 <mutator>           := convert <name> into <constant> ;
+<gen-offset>        :=  <name-def> [ <number> x + <number> , <constant> ] ;
 
 # Function names
 

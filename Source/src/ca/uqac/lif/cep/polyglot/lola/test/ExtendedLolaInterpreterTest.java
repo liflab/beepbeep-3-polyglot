@@ -46,11 +46,11 @@ public class ExtendedLolaInterpreterTest
 		Connector.connect(src1, 0, gp, gp.getInputIndex("s1"));
 		Pullable p = gp.getPullableOutput("s");
 		o = p.pull();
-		assertEquals(3, o);
+		assertEquals(3f, o);
 		o = p.pull();
-		assertEquals(4, o);
+		assertEquals(4f, o);
 		o = p.pull();
-		assertEquals(5, o);
+		assertEquals(5f, o);
 	}
 	
 	@Test
@@ -76,11 +76,7 @@ public class ExtendedLolaInterpreterTest
 	public void testWindow() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
 	{
 		Object o;
-		QueueSource source = new QueueSource(1);
-		source.addEvent(1);
-		source.addEvent(2);
-		source.addEvent(3);
-		source.addEvent(4);
+		QueueSource source = new QueueSource(1).setEvents(1, 2, 3, 4);
 		ExtendedLolaInterpreter my_int = new ExtendedLolaInterpreter();
 		String expression = "s2 = win(sum, s1, 2)";
 		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build(expression);
@@ -92,6 +88,26 @@ public class ExtendedLolaInterpreterTest
 		assertEquals(5f, (Number) o);
 		o = pul.pull();
 		assertEquals(7f, (Number) o);
+	}
+	
+	@Test
+	public void testGenOffset() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
+	{
+		Object o;
+		QueueSource source = new QueueSource(1).setEvents(0, 1, 2, 3, 4, 5, 6, 7, 8);
+		ExtendedLolaInterpreter my_int = new ExtendedLolaInterpreter();
+		String expression = "s2 = s1[2x+1, 0]";
+		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build(expression);
+		Connector.connect(source, 0, gp, gp.getInputIndex("s1"));
+		Pullable pul = gp.getPullableOutput("s2");
+		o = pul.pull();
+		assertEquals(1, (Number) o);
+		o = pul.pull();
+		assertEquals(3, (Number) o);
+		o = pul.pull();
+		assertEquals(5, (Number) o);
+		o = pul.pull();
+		assertEquals(7, (Number) o);
 	}
 
 }

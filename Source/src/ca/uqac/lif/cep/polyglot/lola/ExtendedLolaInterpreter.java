@@ -18,31 +18,45 @@
 package ca.uqac.lif.cep.polyglot.lola;
 
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ca.uqac.lif.bullwinkle.Builds;
-import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
 import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.GroupProcessor;
 import ca.uqac.lif.cep.Processor;
-import ca.uqac.lif.cep.functions.Cumulate;
-import ca.uqac.lif.cep.functions.CumulativeFunction;
-import ca.uqac.lif.cep.functions.TurnInto;
-import ca.uqac.lif.cep.tmf.Passthrough;
-import ca.uqac.lif.cep.tmf.Window;
+import ca.uqac.lif.cep.functions.*;
+import ca.uqac.lif.cep.tmf.*;
 import ca.uqac.lif.cep.util.Numbers;
 
+/**
+ * An interpreter providing extensions to LOLA 1.0.
+ * @author Sylvain Hallé
+ */
 public class ExtendedLolaInterpreter extends LolaInterpreter
 {
+	/**
+	 * A map associating names to GroupProcessors. This is used to store the
+	 * chains of processors created through {@code define} statements.
+	 */
 	protected HashMap<String,NamedGroupProcessor> m_definedBoxes = new HashMap<String,NamedGroupProcessor>();
 	
+	/**
+	 * The regex pattern for {@code define} statements
+	 */
 	protected Pattern m_definePattern = Pattern.compile("define \\$(.*?)\\((.*?)\\)");
 	
+	/**
+	 * The regex pattern for invoking a box defined using a
+	 * {@code define} statement
+	 */
 	protected Pattern m_boxPattern = Pattern.compile("\\$(.*?)\\((.*?)\\)");
 	
-	public ExtendedLolaInterpreter() throws InvalidGrammarException {
+	/**
+	 * Creates a new instance of the extended LOLA interpreter
+	 * @throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException
+	 */
+	public ExtendedLolaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super(false);
 		setGrammar(super.getGrammar() + "\n" + getGrammar());
 	}
@@ -55,7 +69,7 @@ public class ExtendedLolaInterpreter extends LolaInterpreter
 	@Override
 	public GroupProcessor build(String expression) throws BuildException 
 	{
-		Scanner scanner = new Scanner(expression);
+		java.util.Scanner scanner = new java.util.Scanner(expression);
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine().trim();
 			if (line.isEmpty())
@@ -80,19 +94,29 @@ public class ExtendedLolaInterpreter extends LolaInterpreter
 		scanner.close();
 		return endOfFileVisit();
 	}
-		
+	
+	/**
+	 * Processes the inside of a {@code define} statement and creates a
+	 * {@link NamedGroupProcessor} out of it. This processor is then associated
+	 * to the name occurring in the {@code define} line.
+	 * @param def_line The first line of the {@code define} statement
+	 *   (the one that contains "define")
+	 * @param contents The inside of the {@code define} statement (may span
+	 *   multiple lines, excluding the one that starts with
+	 *   "{@code end define}")
+	 * @throws ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException
+	 */
 	public void createNamedBox(String def_line, String contents) throws ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException
 	{
 		ExtendedLolaInterpreter sub_int = null;
 		try {
 			sub_int = new ExtendedLolaInterpreter();
-		} catch (InvalidGrammarException e) {
+		} catch (ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException e) {
 			// Should not happen
 		}
 		NamedGroupProcessor gp = (NamedGroupProcessor) sub_int.build(contents);
 		Matcher mat = m_definePattern.matcher(def_line);
-		if (!mat.find())
-		{
+		if (!mat.find()) {
 			throw new ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException("Incorrect define statement");
 		}
 		String box_name = mat.group(1);
@@ -103,20 +127,17 @@ public class ExtendedLolaInterpreter extends LolaInterpreter
 	
 	@Builds(rule="<window>", pop=true, clean=true)
 	public Processor handleWindow(Object ... args) {
-		Processor phi = (Processor) args[1];
 		Window w = new Window((Processor) args[0], ((Number) args[2]).intValue());
-		Connector.connect(phi, w);
+		Connector.connect((Processor) args[1], w);
 		return add(w);
 	}
 	
 	@Builds(rule="<func-name>", pop=true)
 	public Processor handleFunctionName(Object ... args) {
 		String name = (String) args[0];
-		if (name.startsWith("$"))
-		{
+		if (name.startsWith("$")) {
 			String box_name = name.substring(1);
-			if (m_definedBoxes.containsKey(box_name))
-			{
+			if (m_definedBoxes.containsKey(box_name)) {
 				return m_definedBoxes.get(box_name).duplicate();
 			}
 		}
@@ -148,5 +169,14 @@ public class ExtendedLolaInterpreter extends LolaInterpreter
 		TurnInto cp = new TurnInto(args[1]);
 		Connector.connect((Processor) args[0], cp);
 		return add(cp);
+	}
+	
+	@Builds(rule="<gen-offset>", pop=true, clean=true)
+	public Processor handleGenOffset(Object ... args) {
+		Passthrough pt = forkInput((String) args[0]);
+		Offset off = new Offset(((Number) args[2]).intValue(), args[3]);
+		CountDecimate dec = new CountDecimate(((Number) args[1]).intValue());
+		Connector.connect(add(pt), add(off), add(dec));
+		return dec;
 	}
 }
