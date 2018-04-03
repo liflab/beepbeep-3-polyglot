@@ -1,0 +1,29 @@
+# ------------------------------------------------------------------
+# A grammar for Quantified Event Automata
+# (C) 2018 Sylvain Hallé
+# ------------------------------------------------------------------
+
+<S>         := <quantifier> | <trans> | <symbol> | <auto> ;
+<trans>     := <state-num> -\u003e <state-num> <guard>;
+<guard>     := [ <fct> \u003a <asg> ] | [ <fct> ] ; 
+<symbol>    := <state-num> [ <const> ];
+<state-num> := ^\d+;
+<auto>      := qea { | } ;
+
+# Quantifiers (TODO)
+
+<quantifier> := foo;
+
+# Functions that can appear in guards
+ 
+<fct>       := <and> | <or> ;
+<and>       := ( <fct> ) & ( <fct> );
+<or>       := ( <or> ) & ( <or> );
+
+# Assignments to state variables
+
+<asg>       := <var> \u003a\u003d <rvalue> | ε ;
+<rvalue>    := <addition> | <var> | <const> ;
+<addition>  := ( <rvalue> ) + ( <rvalue> ) ;
+<const>     := ^[\w\d]+;
+<var>       := ^\$[\w\d]+; 

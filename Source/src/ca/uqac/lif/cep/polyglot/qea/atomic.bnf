@@ -1,0 +1,4 @@
+# Sub-grammar for propositional QEA
+
+<fct>  := <atom> ;
+<atom> := ^[\w\d]+;
