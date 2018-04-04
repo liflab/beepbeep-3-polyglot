@@ -17,34 +17,40 @@
  */
 package ca.uqac.lif.cep.polyglot.qea;
 
-import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
 import ca.uqac.lif.bullwinkle.Builds;
+import ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException;
 import ca.uqac.lif.cep.functions.Constant;
-import ca.uqac.lif.cep.functions.Function;
 import ca.uqac.lif.cep.functions.FunctionTree;
-import ca.uqac.lif.cep.functions.IdentityFunction;
 import ca.uqac.lif.cep.functions.StreamVariable;
+import ca.uqac.lif.cep.util.Bags;
 import ca.uqac.lif.cep.util.Equals;
+import ca.uqac.lif.cep.util.Strings;
+import ca.uqac.lif.cep.xml.XPathFunction;
 
-public class AtomicQeaInterpreter extends QeaInterpreter 
-{
-	public AtomicQeaInterpreter() throws InvalidGrammarException {
+public class XmlQeaInterpreter extends QeaInterpreter {
+
+	public XmlQeaInterpreter() throws InvalidGrammarException {
 		super();
 		setGrammar(super.getGrammar() + "\n" + getGrammar());
 	}
 	
 	@Override
 	protected String getGrammar() {
-		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(QeaInterpreter.class.getResourceAsStream("atomic.bnf"));
+		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(QeaInterpreter.class.getResourceAsStream("xml.bnf"));
 	}
 	
-	@Builds(rule="<atom>", pop=true)
-	public Function handleAtom(Object ... args) {
-		return new FunctionTree(Equals.instance, new Constant((String) args[0]), StreamVariable.X);
+	@Builds(rule="<x-equals>", pop=true, clean=true)
+	public FunctionTree handleXEquals(Object ... args) {
+		String cons = (String) args[1];
+		XPathFunction xpf = (XPathFunction) args[0];
+		return new FunctionTree(Equals.instance,
+				new FunctionTree(Strings.toString, new FunctionTree(Bags.anyElement, new FunctionTree(xpf, StreamVariable.X))), new Constant(cons));
 	}
 	
-	@Builds(rule="<dom-fct>", pop=true)
-	public Function handleDot(Object ... args) {
-		return new IdentityFunction(1);
+	@Builds(rule="<xpathfct>")
+	public void handleXPath(java.util.ArrayDeque<Object> stack) {
+		XPathFunction xpf = new XPathFunction((String) stack.pop());
+		stack.push(xpf);
 	}
+
 }

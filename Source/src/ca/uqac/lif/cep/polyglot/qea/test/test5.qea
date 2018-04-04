@@ -1,0 +1,12 @@
+# A QEA that returns false as soon as the same value of
+# element `id` has been seen three times
+
+forall $s in e/id
+  0 [true]
+  1 [true]
+  2 [true]
+  3 [false]
+  0 -> 1 [*]
+  1 -> 2 [*]
+  2 -> 3 [*]
+  3 -> 3 [*]

@@ -1,0 +1,12 @@
+# Sub-grammar for XPath in QEA
+
+<fct>    := <x-equals> ;
+<x-equals> := <xpathfct> = <constant> ;
+<xpathfct> := ^[\w\d/\(\)]+;
+<constant> := ^[\w\d]+;
+
+# Quantifiers
+
+<dom-fct>  := <xpathfct>;
+<var>      := ^\$[\w\d]+;
+<c-var>    := ^\$[\w\d]+;

@@ -18,18 +18,12 @@
 package ca.uqac.lif.cep.polyglot.qea;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 
 import ca.uqac.lif.bullwinkle.Builds;
-import ca.uqac.lif.cep.Connector;
-import ca.uqac.lif.cep.GroupProcessor;
-import ca.uqac.lif.cep.Processor;
-import ca.uqac.lif.cep.fsm.FunctionTransition;
-import ca.uqac.lif.cep.fsm.MooreMachine;
-import ca.uqac.lif.cep.fsm.TransitionOtherwise;
+import ca.uqac.lif.cep.*;
+import ca.uqac.lif.cep.fsm.*;
 import ca.uqac.lif.cep.functions.*;
-import ca.uqac.lif.cep.tmf.Passthrough;
-import ca.uqac.lif.cep.tmf.Slice;
+import ca.uqac.lif.cep.tmf.*;
 import ca.uqac.lif.cep.util.Booleans;
 import ca.uqac.lif.cep.util.Numbers;
 
@@ -40,9 +34,17 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 	 */
 	protected MooreMachine m_machine = new MooreMachine(1, 1);
 
-	protected ArrayList<Slice> m_slice = new ArrayList<Slice>();
+	/**
+	 * If the specification contains quantifiers, the innermost "slice"
+	 * processor. This is the one that will be passed the Moore machine as
+	 * its argument once it is built.
+	 */
+	protected Slice m_innerSlice = null;
 
-	protected ArrayList<Processor> m_postProcessor = new ArrayList<Processor>();
+	/**
+	 * The outermost GroupProcessor built so far
+	 */
+	protected GroupProcessor m_outerProcessor = null;
 
 	public QeaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super();
@@ -155,63 +157,57 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 	public void handleSum(ArrayDeque<Object> stack) {
 		slice(MapSum.instance, stack);
 	}
-	
+
 	@Builds(rule="<avg>") 
 	public void handleAverage(ArrayDeque<Object> stack) {
 		slice(MapAverage.instance, stack);
 	}
-	
+
 	@Builds(rule="<forall>") 
 	public void handleForAll(ArrayDeque<Object> stack) {
 		slice(MapAnd.instance, stack);
 	}
-	
+
 	@Builds(rule="<exists>") 
 	public void handleExists(ArrayDeque<Object> stack) {
 		slice(MapOr.instance, stack);
 	}
-	
+
 	protected void slice(Function f, ArrayDeque<Object> stack) {
 		Function dom_fct = (Function) stack.pop();
 		stack.pop(); // in
 		@SuppressWarnings("unused")
 		ContextVariable var = (ContextVariable) stack.pop();
 		stack.pop(); // avg
-		if (m_slice.isEmpty()) {
-			m_slice.add(new Slice(dom_fct, new Passthrough(1)));
-			m_postProcessor.add(new ApplyFunction(f));
+		Processor to_surround = null;
+		if (m_innerSlice == null) {
+			m_innerSlice = new Slice(dom_fct, new Passthrough(1)).explodeCollections(true);
+			to_surround = m_innerSlice;
 		}
-		else {
-			Slice sl = new Slice(dom_fct, m_slice.get(0));
-			m_slice.add(0, sl);
-			m_postProcessor.add(new ApplyFunction(f));
-		}
+		else
+			to_surround = m_outerProcessor;
+		GroupProcessor gp = new GroupProcessor(1, 1);
+		ApplyFunction af = new ApplyFunction(f);
+		Connector.connect(to_surround, af);
+		gp.addProcessors(gp, af);
+		gp.associateInput(0, to_surround, 0);
+		gp.associateOutput(0, af, 0);
+		m_outerProcessor = gp;
 	}
 
 	@Override
 	public GroupProcessor endOfFileVisit() {
-		GroupProcessor gp = new GroupProcessor(1, 1);
-		if (m_slice.isEmpty()) {
+		if (m_innerSlice == null) {
+			GroupProcessor gp = new GroupProcessor(1, 1);
 			gp.addProcessor(m_machine);
 			gp.associateInput(0,  m_machine, 0);
 			gp.associateOutput(0,  m_machine, 0);
+			return gp;
 		}
 		else {
 			// Quantifiers surrounding the FSM
-			for (Slice s : m_slice)
-			{
-				gp.addProcessor(s);
-			}
-			m_slice.get(m_slice.size() - 1).setProcessor(m_machine);
-			Processor last = m_slice.get(0);
-			for (Processor p : m_postProcessor)
-			{
-				Connector.connect(last, p);
-				last = p;
-			}
-			gp.associateInput(0, m_slice.get(0), 0);
-			gp.associateOutput(0, last, 0);
+			m_innerSlice.setProcessor(m_machine);
+			return m_outerProcessor;
 		}
-		return gp;
 	}
 }

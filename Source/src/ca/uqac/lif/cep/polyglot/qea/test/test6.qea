@@ -1,0 +1,11 @@
+# A QEA that returns true if for every value of element `id`,
+# there exists a value of `action` for this `id` occurring
+# in an event where element `p` is equal to 1
+
+forall $s1 in e/id
+exists $s2 in e/action/text()
+  0 [false]
+  1 [true]
+  0 -> 1 [e/p/text() = 1]
+  0 -> 0 [*]
+  1 -> 1 [*]
