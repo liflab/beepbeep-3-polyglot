@@ -1,1 +1,1 @@
-out = (x) + (1)
+out = ite(x, true, false)

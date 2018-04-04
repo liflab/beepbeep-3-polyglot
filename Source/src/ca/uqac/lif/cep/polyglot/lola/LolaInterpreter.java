@@ -62,6 +62,12 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 		qs.addEvent(value);
 		stack.push(add(qs));
 	}
+	
+	@Builds(rule="<string>")
+	public void handleString(ArrayDeque<Object> stack) {
+		String value = (String) stack.pop();
+		stack.push(value.substring(1, value.length() - 2));
+	}
 
 	@Builds(rule="<gt>", pop=true, clean=true)
 	public Processor handleGt(Object ... args) {

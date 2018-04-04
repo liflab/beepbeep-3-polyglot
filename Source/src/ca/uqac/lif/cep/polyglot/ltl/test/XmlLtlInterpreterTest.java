@@ -15,7 +15,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.uqac.lif.cep.polyglot.ltl;
+package ca.uqac.lif.cep.polyglot.ltl.test;
 
 import static org.junit.Assert.*;
 
@@ -26,20 +26,25 @@ import ca.uqac.lif.bullwinkle.ParseTreeObjectBuilder.BuildException;
 import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.GroupProcessor;
 import ca.uqac.lif.cep.Pullable;
+import ca.uqac.lif.cep.functions.ApplyFunction;
 import ca.uqac.lif.cep.ltl.Troolean;
+import ca.uqac.lif.cep.polyglot.ltl.XmlLtlInterpreter;
 import ca.uqac.lif.cep.tmf.QueueSource;
+import ca.uqac.lif.cep.xml.ParseXml;
 
-public class AtomicLtlInterpreterTest 
+public class XmlLtlInterpreterTest 
 {
 	@Test
 	public void test1() throws InvalidGrammarException, BuildException
 	{
 		Troolean.Value b;
-		String formula = "G (a)";
-		AtomicLtlInterpreter ali = new AtomicLtlInterpreter();
+		String formula = "G (e/id/text() = 0)";
+		XmlLtlInterpreter ali = new XmlLtlInterpreter();
 		GroupProcessor gp = ali.build(formula);
-		QueueSource src = new QueueSource().setEvents("a", "a", "b").loop(false);
-		Connector.connect(src, gp);
+		QueueSource src = new QueueSource().loop(false);
+		src.setEvents("<e><id>0</id></e>", "<e><id>1</id></e>");
+		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+		Connector.connect(src, xml_parse, gp);
 		Pullable p = gp.getPullableOutput();
 		b = (Troolean.Value) p.pull();
 		assertEquals(Troolean.Value.FALSE, b);
@@ -49,11 +54,13 @@ public class AtomicLtlInterpreterTest
 	public void test2() throws InvalidGrammarException, BuildException
 	{
 		Troolean.Value b;
-		String formula = "G (a)";
-		AtomicLtlInterpreter ali = new AtomicLtlInterpreter();
+		String formula = "G ((e/id/text() = 0) ∨ (e/id/text() = 2))";
+		XmlLtlInterpreter ali = new XmlLtlInterpreter();
 		GroupProcessor gp = ali.build(formula);
-		QueueSource src = new QueueSource().setEvents("a", "a", "a").loop(false);
-		Connector.connect(src, gp);
+		QueueSource src = new QueueSource().loop(false);
+		src.setEvents("<e><id>0</id></e>", "<e><id>1</id></e>");
+		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+		Connector.connect(src, xml_parse, gp);
 		Pullable p = gp.getPullableOutput();
 		b = (Troolean.Value) p.pull();
 		assertNull(b);
@@ -63,17 +70,15 @@ public class AtomicLtlInterpreterTest
 	public void test3() throws InvalidGrammarException, BuildException
 	{
 		Troolean.Value b;
-		String formula = "C 2 (a)";
-		AtomicLtlInterpreter ali = new AtomicLtlInterpreter();
+		String formula = "G (∀ $x ∈ /e/id/text() : ( $x = 0 ))";
+		XmlLtlInterpreter ali = new XmlLtlInterpreter();
 		GroupProcessor gp = ali.build(formula);
-		QueueSource src = new QueueSource().setEvents("a", "a", "b").loop(false);
-		Connector.connect(src, gp);
+		QueueSource src = new QueueSource().loop(false);
+		src.setEvents("<e><id>0</id></e>", "<e><id>1</id></e>");
+		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+		Connector.connect(src, xml_parse, gp);
 		Pullable p = gp.getPullableOutput();
 		b = (Troolean.Value) p.pull();
-		assertEquals(Troolean.Value.FALSE, b);
-		b = (Troolean.Value) p.pull();
-		assertEquals(Troolean.Value.TRUE, b);
-		b = (Troolean.Value) p.pull();
-		assertEquals(Troolean.Value.FALSE, b);
+		assertNull(b);
 	}
 }
