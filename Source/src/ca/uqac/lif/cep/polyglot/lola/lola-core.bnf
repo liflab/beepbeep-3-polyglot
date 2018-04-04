@@ -3,7 +3,7 @@
 # (C) 2017-2018 Sylvain Hallé
 # ------------------------------------------------------------------
 
-<S>                 := <stream-def> | <trigger> ;
+<S>                 := <stream-def> | <trigger> | <output> ;
 <trigger>           := trigger <string> <stream-exp> ;
 <stream-def>        := <name-def> = <stream-exp> ;
 <stream-exp>        := <other> | <if-then-else> | <offset> | <binary-op> | <unary-op>  
@@ -37,6 +37,11 @@
 <constant-stream>   := <boolean> | <number> ;
 <constant>          := <boolean> | <number> | <name-def> ;
 <boolean>           := true | false ;
+
+# Explicitly declare a stream as an output
+
+<output>            := output <o-name> ;
+<o-name>            := ^[\d\w]+;
 
 # To allow extensions with other constructs in a separate file
 

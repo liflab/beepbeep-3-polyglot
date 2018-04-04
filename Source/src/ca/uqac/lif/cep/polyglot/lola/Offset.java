@@ -18,9 +18,13 @@
 package ca.uqac.lif.cep.polyglot.lola;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Queue;
 
+import ca.uqac.lif.cep.NextStatus;
+import ca.uqac.lif.cep.Processor;
 import ca.uqac.lif.cep.ProcessorException;
+import ca.uqac.lif.cep.Pullable;
 import ca.uqac.lif.cep.SingleProcessor;
 
 public class Offset extends SingleProcessor 
@@ -83,8 +87,139 @@ public class Offset extends SingleProcessor
 	}
 
 	@Override
+	public OffsetPullable getPullableOutput(int index)
+	{
+		return new OffsetPullable();
+	}
+
+	@Override
 	public Offset duplicate()
 	{
 		return new Offset(m_offset, m_defaultValue);
+	}
+
+	protected class OffsetPullable implements Pullable
+	{
+		@Override
+		public Iterator<Object> iterator()
+		{
+			return this;
+		}
+
+		@Override
+		public Object pullSoft()
+		{
+			return pull();
+		}
+
+		@Override
+		public Object pull() 
+		{
+			if (m_offset < 0)
+			{
+				if (m_eventCount < -m_offset)
+				{
+					m_eventCount++;
+					return m_defaultValue;
+				}
+				else if (m_eventCount == -m_offset)
+				{
+					m_eventCount++;
+					return m_inputPullables[0].pull();
+				}
+				else
+				{
+					return m_inputPullables[0].pull();
+				}
+			}
+			else if (m_offset > 0 && m_eventCount < m_offset)
+			{
+				for (int i = m_eventCount; i < m_offset; i++)
+				{
+					// Discard the first m_offset events
+					m_inputPullables[0].pullSoft();
+					m_eventCount++;
+				}
+				return m_inputPullables[0].pull();
+			}
+			else
+			{
+				return m_inputPullables[0].pull();
+			}
+		}
+
+		@Override
+		public Object next() 
+		{
+			return pull();
+		}
+
+		@Override
+		public NextStatus hasNextSoft() 
+		{
+			if (m_offset < 0 && m_eventCount < -m_offset)
+				return NextStatus.YES;
+			if (!m_bufferedOutputs.isEmpty())
+				return NextStatus.YES;
+			if (m_offset > 0 && m_eventCount < m_offset)
+			{
+				for (int i = m_eventCount; i < m_offset; i++)
+				{
+					// Discard the first m_offset events
+					m_inputPullables[0].pullSoft();
+					m_eventCount++;
+				}
+			}
+			return m_inputPullables[0].hasNextSoft();
+		}
+
+		@Override
+		public boolean hasNext() 
+		{
+			if (m_offset < 0 && m_eventCount < -m_offset)
+				return true;
+			if (!m_bufferedOutputs.isEmpty())
+				return true;
+			if (m_offset > 0 && m_eventCount < m_offset)
+			{
+				for (int i = m_eventCount; i < m_offset; i++)
+				{
+					// Discard the first m_offset events
+					m_inputPullables[0].pull();
+					m_eventCount++;
+				}
+			}
+			return m_inputPullables[0].hasNext();
+		}
+
+		@Override
+		public Processor getProcessor()
+		{
+			return Offset.this;
+		}
+
+		@Override
+		public int getPosition() 
+		{
+			return 0;
+		}
+
+		@Override
+		public void start() 
+		{
+			Offset.this.start();
+		}
+
+		@Override
+		public void stop() 
+		{
+			Offset.this.stop();
+		}
+
+		@Override
+		public void dispose()
+		{
+			// Nothing to do
+		}
 	}
 }

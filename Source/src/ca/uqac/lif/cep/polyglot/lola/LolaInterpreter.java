@@ -19,6 +19,7 @@ package ca.uqac.lif.cep.polyglot.lola;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import ca.uqac.lif.bullwinkle.Builds;
@@ -35,6 +36,11 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 	 * The set of named triggers registered with this interpreter
 	 */
 	protected HashMap<String,Trigger> m_triggers = new HashMap<String,Trigger>();
+	
+	/**
+	 * A set of streams that are explicitly declared as outputs
+	 */
+	protected HashSet<String> m_declaredOutputs = new HashSet<String>();
 
 	public LolaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super();
@@ -90,6 +96,13 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 	@Builds(rule="<boolean>", pop=true)
 	public boolean handleBoolean(Object ... args) {
 		return "true".equalsIgnoreCase((String) args[0]);
+	}
+	
+	@Builds(rule="<output>") 
+	public void handleOutput(ArrayDeque<Object> stack) {
+		String name = (String) stack.pop();
+		stack.pop(); // output
+		m_declaredOutputs.add(name);
 	}
 
 	@Builds(rule="<name>", pop=true)
@@ -170,7 +183,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 				// Fork's input connected to nothing
 				m_ins.put((String) entry.getKey(), f);
 			}
-			if (f.getOutputArity() == 0) {
+			if (f.getOutputArity() == 0 || m_declaredOutputs.contains(entry.getKey()) ) {
 				// Fork's output connected to nothing
 				m_outs.put((String) entry.getKey(), f);
 			}
