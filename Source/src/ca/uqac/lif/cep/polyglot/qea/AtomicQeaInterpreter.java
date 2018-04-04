@@ -22,6 +22,7 @@ import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.cep.functions.Constant;
 import ca.uqac.lif.cep.functions.Function;
 import ca.uqac.lif.cep.functions.FunctionTree;
+import ca.uqac.lif.cep.functions.IdentityFunction;
 import ca.uqac.lif.cep.functions.StreamVariable;
 import ca.uqac.lif.cep.util.Equals;
 
@@ -39,8 +40,12 @@ public class AtomicQeaInterpreter extends QeaInterpreter
 	}
 	
 	@Builds(rule="<atom>", pop=true)
-	public Function handleAtom(Object ... args)
-	{
+	public Function handleAtom(Object ... args) {
 		return new FunctionTree(Equals.instance, new Constant((String) args[0]), StreamVariable.X);
+	}
+	
+	@Builds(rule="<dom-fct>", pop=true)
+	public Function handleDot(Object ... args) {
+		return new IdentityFunction(1);
 	}
 }

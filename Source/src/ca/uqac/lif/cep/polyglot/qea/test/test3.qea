@@ -1,0 +1,7 @@
+# A QEA that returns the average number of occurrences
+# of each symbol
+
+avg $s in .
+  $n := 1
+  0 [$n]
+  0 -> 0 [* / $n := ($n) + (1)]

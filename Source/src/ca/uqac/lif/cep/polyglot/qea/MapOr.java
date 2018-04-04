@@ -15,33 +15,44 @@
     You should have received a copy of the GNU Lesser General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ca.uqac.lif.cep.polyglot;
+package ca.uqac.lif.cep.polyglot.qea;
 
-import ca.uqac.lif.cep.functions.FunctionException;
-import ca.uqac.lif.cep.util.Numbers;
+import java.util.Map;
 
-public class Util 
+import ca.uqac.lif.cep.functions.Function;
+import ca.uqac.lif.cep.functions.UnaryFunction;
+
+/**
+ * Computes the disjunction of the values in a map
+ */
+@SuppressWarnings("rawtypes")
+public class MapOr extends UnaryFunction<Map,Boolean>
 {
-	public static String convertStreamToString(java.io.InputStream is) 
-	{
-	    @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-	    String out = "";
-	    if (s.hasNext())
-	    	out = s.next();
-	    s.close();
-	    return out;
-	}
+	public static final transient MapOr instance = new MapOr();
 	
-	public static Object tryNumber(Object o)
+	private MapOr()
 	{
-		try
+		super(Map.class, Boolean.class);
+	}
+
+	@Override
+	public Boolean getValue(Map m) 
+	{
+		boolean b = false;
+		for (Object o : m.values())
 		{
-			return Numbers.NumberCast.getNumber(o);
+			if (o instanceof Function)
+			{
+				Object[] out = new Object[1];
+				Function f = (Function) o;
+				((Function) o).evaluate(new Object[f.getInputArity()], out);
+				b |= ((Boolean) out[0]).booleanValue();
+			}
+			else
+			{
+				b |= ((Boolean) o).booleanValue();
+			}
 		}
-		catch (FunctionException e)
-		{
-			return o;
-		}
+		return b;
 	}
 }

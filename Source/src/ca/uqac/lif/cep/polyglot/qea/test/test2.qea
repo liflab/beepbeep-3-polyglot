@@ -1,0 +1,6 @@
+# A QEA that returns the number of distinct symbols
+# seen so far
+
+sum $s in .
+  0 [1]
+  0 -> 0 [*]

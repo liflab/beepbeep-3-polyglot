@@ -3,27 +3,34 @@
 # (C) 2018 Sylvain Hallé
 # ------------------------------------------------------------------
 
-<S>         := <quantifier> | <trans> | <symbol> | <auto> ;
+<S>         := <quantifier> | <trans> | <initial-asg> | <symbol> | <auto> ;
 <trans>     := <state-num> -\u003e <state-num> <guard>;
-<guard>     := [ <fct> \u003a <asg> ] | [ <fct> ] ; 
-<symbol>    := <state-num> [ <const> ];
+<guard>     := [ <fct> / <asg> ] | [ <fct> ] ; 
+<symbol>    := <state-num> [ <rvalue> ];
 <state-num> := ^\d+;
 <auto>      := qea { | } ;
 
-# Quantifiers (TODO)
+# Quantifiers
 
-<quantifier> := foo;
+<quantifier>   := <foreach> | <exists> | <sum> | <avg> ;
+<foreach>      := for each <var> in <dom-fct> ;
+<exists>       := exists <var> in <dom-fct> ;
+<sum>          := sum <var> in <dom-fct> ;
+<avg>          := avg <var> in <dom-fct> ;
 
 # Functions that can appear in guards
  
-<fct>       := <and> | <or> ;
-<and>       := ( <fct> ) & ( <fct> );
-<or>       := ( <or> ) & ( <or> );
+<fct>         := <and> | <or> | <otherwise> ;
+<and>         := ( <fct> ) & ( <fct> );
+<or>          := ( <fct> ) \u007c ( <fct> );
+<otherwise>   := * ;
 
 # Assignments to state variables
 
-<asg>       := <var> \u003a\u003d <rvalue> | ε ;
-<rvalue>    := <addition> | <var> | <const> ;
-<addition>  := ( <rvalue> ) + ( <rvalue> ) ;
-<const>     := ^[\w\d]+;
-<var>       := ^\$[\w\d]+; 
+<initial-asg> := <var> \u003a\u003d <state-symb> ;
+<asg>         := <var> \u003a\u003d <rvalue> ;
+<rvalue>      := <plus> | <var> | <const> ;
+<plus>        := ( <rvalue> ) + ( <rvalue> ) ;
+<const>       := ^[\w\d]+;
+<state-symb>  := ^[\w\d]+;
+<var>         := ^\$[\w\d]+;

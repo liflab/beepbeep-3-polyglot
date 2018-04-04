@@ -20,55 +20,71 @@ package ca.uqac.lif.cep.polyglot.qea;
 import java.util.ArrayDeque;
 
 import ca.uqac.lif.bullwinkle.Builds;
+import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.GroupProcessor;
-import ca.uqac.lif.cep.dsl.MultilineGroupProcessorBuilder;
+import ca.uqac.lif.cep.Processor;
 import ca.uqac.lif.cep.fsm.FunctionTransition;
 import ca.uqac.lif.cep.fsm.MooreMachine;
-import ca.uqac.lif.cep.functions.ContextAssignment;
-import ca.uqac.lif.cep.functions.Function;
+import ca.uqac.lif.cep.fsm.TransitionOtherwise;
+import ca.uqac.lif.cep.functions.*;
+import ca.uqac.lif.cep.tmf.Passthrough;
+import ca.uqac.lif.cep.tmf.Slice;
+import ca.uqac.lif.cep.util.Bags;
+import ca.uqac.lif.cep.util.Booleans;
+import ca.uqac.lif.cep.util.Maps;
+import ca.uqac.lif.cep.util.Numbers;
 
-public class QeaInterpreter extends MultilineGroupProcessorBuilder {
-	
+public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorBuilder {
+
 	/**
 	 * The automaton that will be built
 	 */
 	protected MooreMachine m_machine = new MooreMachine(1, 1);
 
+	protected Slice m_slice = null;
+
+	protected Processor m_postProcessor = null;
+
 	public QeaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super();
 	}
-	
+
 	protected String getGrammar() {
 		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(QeaInterpreter.class.getResourceAsStream("core.bnf"));
 	}
-	
+
 	@Builds(rule="<trans>")
-	public void handleTrans(ArrayDeque<Object> stack)
-	{
+	public void handleTrans(ArrayDeque<Object> stack) {
 		Guard guard = (Guard) stack.pop();
 		int s_to = (Integer) stack.pop();
 		stack.pop(); // ->
 		int s_from = (Integer) stack.pop();
 		FunctionTransition trans = null;
-		if (guard.m_assignment != null)
-		{
-			trans = new FunctionTransition(guard.m_condition, s_to, guard.m_assignment);			
+		if (guard.m_assignment != null) {
+			if (guard.m_condition instanceof OtherwiseFunction) {
+				trans = new TransitionOtherwise(s_to, guard.m_assignment);
+			}
+			else {
+				trans = new FunctionTransition(guard.m_condition, s_to, guard.m_assignment);
+			}
 		}
-		else
-		{
-			trans = new FunctionTransition(guard.m_condition, s_to);
+		else {
+			if (guard.m_condition instanceof OtherwiseFunction) {
+				trans = new TransitionOtherwise(s_to);
+			}
+			else {
+				trans = new FunctionTransition(guard.m_condition, s_to);
+			}
 		}
 		m_machine.addTransition(s_from, trans);
 	}
-	
+
 	@Builds(rule="<guard>")
-	public void handleGuard(ArrayDeque<Object> stack)
-	{
+	public void handleGuard(ArrayDeque<Object> stack) {
 		stack.pop(); // ]
 		Object o = stack.peek();
 		ContextAssignment ca = null;
-		if (o instanceof ContextAssignment)
-		{
+		if (o instanceof ContextAssignment) {
 			ca = (ContextAssignment) stack.pop();
 			stack.pop(); // :
 		}
@@ -77,31 +93,117 @@ public class QeaInterpreter extends MultilineGroupProcessorBuilder {
 		Guard g = new Guard(condition, ca);
 		stack.push(g);
 	}
-	
+
 	@Builds(rule="<symbol>")
-	public void handleSymbol(ArrayDeque<Object> stack)
-	{
+	public void handleSymbol(ArrayDeque<Object> stack) {
 		stack.pop(); // ]
-		String symbol = (String) stack.pop();
+		Object symbol = stack.pop();
 		stack.pop(); // [
 		int s_num = (Integer) stack.pop();
-		m_machine.addSymbol(s_num, symbol);
+		m_machine.addSymbol(s_num, new Constant(symbol));
 	}
-	
+
 	@Builds(rule="<state-num>", pop=true)
-	public Integer handleStateNum(Object ... args)
-	{
+	public Integer handleStateNum(Object ... args) {
 		return Integer.parseInt((String) args[0]);
 	}
 
-	@Override
-	public GroupProcessor endOfFileVisit() 
-	{
-		GroupProcessor gp = new GroupProcessor(1, 1);
-		gp.addProcessor(m_machine);
-		gp.associateInput(0,  m_machine, 0);
-		gp.associateOutput(0,  m_machine, 0);
-		return gp;
+	@Builds(rule="<asg>", pop=true)
+	public ContextAssignment handleAsg(Object ... args) {
+		return new ContextAssignment(((ContextVariable) args[0]).getName(), (Function) args[2]);	
+	}
+
+	@Builds(rule="<initial-asg>")
+	public void handleAsg(ArrayDeque<Object> stack) {
+		Object r_value = stack.pop();
+		stack.pop(); // :=
+		ContextVariable c_var = (ContextVariable) stack.pop();
+		m_machine.setContext(c_var.getName(), r_value);	
+	}
+
+	@Builds(rule="<and>", pop=true, clean=true)
+	public Function handleAnd(Object ... args) {
+		return new FunctionTree(Booleans.and, (Function) args[0], (Function) args[1]);	
+	}
+
+	@Builds(rule="<or>", pop=true, clean=true)
+	public Function handleOr(Object ... args) {
+		return new FunctionTree(Booleans.or, (Function) args[0], (Function) args[1]);	
+	}
+
+	@Builds(rule="<const>", pop=true)
+	public Constant handleConst(Object ... args) {
+		return new Constant(ca.uqac.lif.cep.polyglot.Util.tryNumber(args[0]));
+	}
+
+	@Builds(rule="<state-symb>", pop=true)
+	public Object handleStateSymb(Object ... args) {
+		return ca.uqac.lif.cep.polyglot.Util.tryNumber(args[0]);
+	}
+
+	@Builds(rule="<var>", pop=true)
+	public Function handleVar(Object ... args) {
+		// Remove the "$" in front
+		return new ContextVariable(((String) args[0]).substring(1));
+	}
+
+	@Builds(rule="<plus>", pop=true, clean=true)
+	public Function handlePlus(Object ... args) {
+		return new FunctionTree(Numbers.addition, (Function) args[0], (Function) args[1]);
+	}
+
+	@Builds(rule="<otherwise>", pop=true)
+	public Function handleOtherwise(Object ... args) {
+		return new OtherwiseFunction();
+	}
+
+	@Builds(rule="<sum>") 
+	public void handleSum(ArrayDeque<Object> stack) {
+		slice(MapSum.instance, stack);
 	}
 	
+	@Builds(rule="<avg>") 
+	public void handleAverage(ArrayDeque<Object> stack) {
+		slice(MapAverage.instance, stack);
+	}
+	
+	@Builds(rule="<forall>") 
+	public void handleForAll(ArrayDeque<Object> stack) {
+		slice(MapAnd.instance, stack);
+	}
+	
+	@Builds(rule="<exists>") 
+	public void handleExists(ArrayDeque<Object> stack) {
+		slice(MapOr.instance, stack);
+	}
+	
+	protected void slice(Function f, ArrayDeque<Object> stack) {
+		Function dom_fct = (Function) stack.pop();
+		stack.pop(); // in
+		ContextVariable var = (ContextVariable) stack.pop();
+		stack.pop(); // avg
+		if (m_slice == null) {
+			m_slice = new Slice(dom_fct, new Passthrough(1));
+			m_postProcessor = new ApplyFunction(f);
+		}
+	}
+
+	@Override
+	public GroupProcessor endOfFileVisit() {
+		GroupProcessor gp = new GroupProcessor(1, 1);
+		if (m_slice == null) {
+			gp.addProcessor(m_machine);
+			gp.associateInput(0,  m_machine, 0);
+			gp.associateOutput(0,  m_machine, 0);
+		}
+		else {
+			// Quantifiers surrounding the FSM
+			gp.addProcessors(m_slice, m_postProcessor);
+			m_slice.setProcessor(m_machine);
+			Connector.connect(m_slice, m_postProcessor);
+			gp.associateInput(0, m_slice, 0);
+			gp.associateOutput(0, m_postProcessor, 0);
+		}
+		return gp;
+	}
 }
