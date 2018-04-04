@@ -10,6 +10,7 @@ It currently provides interpreters for the following notations:
 
 - Linear Temporal Logic (LTL)
 - LOLA
+- Quantified Event Automata (QEA)
 
 In all cases, the interpreter extends the capabilities of the original
 languages by adding other features supported by the BeepBeep event stream
