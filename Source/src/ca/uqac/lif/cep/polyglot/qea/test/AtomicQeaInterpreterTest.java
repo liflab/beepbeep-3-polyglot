@@ -1,3 +1,20 @@
+/*
+    Multiple interpreters for BeepBeep
+    Copyright (C) 2017-2018 Sylvain Hallé
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package ca.uqac.lif.cep.polyglot.qea.test;
 
 import static org.junit.Assert.*;
@@ -10,7 +27,6 @@ import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.GroupProcessor;
 import ca.uqac.lif.cep.Pullable;
 import ca.uqac.lif.cep.fsm.MooreMachine;
-import ca.uqac.lif.cep.functions.Constant;
 import ca.uqac.lif.cep.polyglot.Util;
 import ca.uqac.lif.cep.polyglot.qea.AtomicQeaInterpreter;
 import ca.uqac.lif.cep.tmf.QueueSource;
@@ -58,9 +74,9 @@ public class AtomicQeaInterpreterTest
 		Connector.connect(src, gp);
 		Pullable p = gp.getPullableOutput();
 		o = p.pull();
-		assertEquals("foo", ((Constant) o).getValue());
+		assertEquals("foo", o);
 		o = p.pull();
-		assertEquals("foo", ((Constant) o).getValue());
+		assertEquals("foo", o);
 	}
 	
 	@Test
@@ -74,7 +90,7 @@ public class AtomicQeaInterpreterTest
 		Connector.connect(src, gp);
 		Pullable p = gp.getPullableOutput();
 		o = p.pull();
-		assertEquals("foo", ((Constant) o).getValue());
+		assertEquals("foo", o);
 	}
 	
 	@Test
@@ -89,7 +105,7 @@ public class AtomicQeaInterpreterTest
 		Connector.connect(src, gp);
 		Pullable p = gp.getPullableOutput();
 		o = p.pull();
-		assertEquals("foo", ((Constant) o).getValue());
+		assertEquals("foo", o);
 		assertEquals(0, mm.getContext("x"));
 	}
 	
@@ -105,16 +121,16 @@ public class AtomicQeaInterpreterTest
 		Connector.connect(src, gp);
 		Pullable p = gp.getPullableOutput();
 		o = p.pull();
-		assertEquals("bar", ((Constant) o).getValue());
+		assertEquals("bar", o);
 		assertEquals(0, mm.getContext("x"));
 		o = p.pull();
-		assertEquals("foo", ((Constant) o).getValue());
+		assertEquals("foo", o);
 		assertEquals(1f, mm.getContext("x"));
 		o = p.pull();
-		assertEquals("foo", ((Constant) o).getValue());
+		assertEquals("foo", o);
 		assertEquals(2f, mm.getContext("x"));
 		o = p.pull();
-		assertEquals("bar", ((Constant) o).getValue());
+		assertEquals("bar", o);
 		assertEquals(0, mm.getContext("x"));
 	}
 	
@@ -159,6 +175,28 @@ public class AtomicQeaInterpreterTest
 		o = p.pull();
 		assertEquals(2f, o);
 		o = p.pull();
-		assertEquals(1f, o);
+		assertEquals(1.66f, (Float) o, 0.01);
+	}
+	
+	@Test
+	public void testForall1() throws InvalidGrammarException, BuildException
+	{
+		Object o;
+		AtomicQeaInterpreter q_int = new AtomicQeaInterpreter();
+		String expression = Util.convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test4.qea"));
+		GroupProcessor gp = (GroupProcessor) q_int.build(expression);
+		QueueSource src = new QueueSource().setEvents("a", "a", "b", "c", "a");
+		Connector.connect(src, gp);
+		Pullable p = gp.getPullableOutput();
+		o = p.pull();
+		assertEquals(true, o);
+		o = p.pull();
+		assertEquals(true, o);
+		o = p.pull();
+		assertEquals(true, o);
+		o = p.pull();
+		assertEquals(true, o);
+		o = p.pull();
+		assertEquals(false, o);
 	}
 }

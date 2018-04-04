@@ -18,6 +18,7 @@
 package ca.uqac.lif.cep.polyglot.qea;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 
 import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.cep.Connector;
@@ -29,9 +30,7 @@ import ca.uqac.lif.cep.fsm.TransitionOtherwise;
 import ca.uqac.lif.cep.functions.*;
 import ca.uqac.lif.cep.tmf.Passthrough;
 import ca.uqac.lif.cep.tmf.Slice;
-import ca.uqac.lif.cep.util.Bags;
 import ca.uqac.lif.cep.util.Booleans;
-import ca.uqac.lif.cep.util.Maps;
 import ca.uqac.lif.cep.util.Numbers;
 
 public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorBuilder {
@@ -41,9 +40,9 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 	 */
 	protected MooreMachine m_machine = new MooreMachine(1, 1);
 
-	protected Slice m_slice = null;
+	protected ArrayList<Slice> m_slice = new ArrayList<Slice>();
 
-	protected Processor m_postProcessor = null;
+	protected ArrayList<Processor> m_postProcessor = new ArrayList<Processor>();
 
 	public QeaInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
 		super();
@@ -97,10 +96,10 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 	@Builds(rule="<symbol>")
 	public void handleSymbol(ArrayDeque<Object> stack) {
 		stack.pop(); // ]
-		Object symbol = stack.pop();
+		Function symbol = (Function) stack.pop();
 		stack.pop(); // [
 		int s_num = (Integer) stack.pop();
-		m_machine.addSymbol(s_num, new Constant(symbol));
+		m_machine.addSymbol(s_num, symbol);
 	}
 
 	@Builds(rule="<state-num>", pop=true)
@@ -115,10 +114,10 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 
 	@Builds(rule="<initial-asg>")
 	public void handleAsg(ArrayDeque<Object> stack) {
-		Object r_value = stack.pop();
+		Constant r_value = (Constant) stack.pop();
 		stack.pop(); // :=
 		ContextVariable c_var = (ContextVariable) stack.pop();
-		m_machine.setContext(c_var.getName(), r_value);	
+		m_machine.addInitialAssignment(new ContextAssignment(c_var.getName(), r_value));	
 	}
 
 	@Builds(rule="<and>", pop=true, clean=true)
@@ -133,12 +132,7 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 
 	@Builds(rule="<const>", pop=true)
 	public Constant handleConst(Object ... args) {
-		return new Constant(ca.uqac.lif.cep.polyglot.Util.tryNumber(args[0]));
-	}
-
-	@Builds(rule="<state-symb>", pop=true)
-	public Object handleStateSymb(Object ... args) {
-		return ca.uqac.lif.cep.polyglot.Util.tryNumber(args[0]);
+		return new Constant(ca.uqac.lif.cep.polyglot.Util.tryPrimitive(args[0]));
 	}
 
 	@Builds(rule="<var>", pop=true)
@@ -180,29 +174,43 @@ public class QeaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessorB
 	protected void slice(Function f, ArrayDeque<Object> stack) {
 		Function dom_fct = (Function) stack.pop();
 		stack.pop(); // in
+		@SuppressWarnings("unused")
 		ContextVariable var = (ContextVariable) stack.pop();
 		stack.pop(); // avg
-		if (m_slice == null) {
-			m_slice = new Slice(dom_fct, new Passthrough(1));
-			m_postProcessor = new ApplyFunction(f);
+		if (m_slice.isEmpty()) {
+			m_slice.add(new Slice(dom_fct, new Passthrough(1)));
+			m_postProcessor.add(new ApplyFunction(f));
+		}
+		else {
+			Slice sl = new Slice(dom_fct, m_slice.get(0));
+			m_slice.add(0, sl);
+			m_postProcessor.add(new ApplyFunction(f));
 		}
 	}
 
 	@Override
 	public GroupProcessor endOfFileVisit() {
 		GroupProcessor gp = new GroupProcessor(1, 1);
-		if (m_slice == null) {
+		if (m_slice.isEmpty()) {
 			gp.addProcessor(m_machine);
 			gp.associateInput(0,  m_machine, 0);
 			gp.associateOutput(0,  m_machine, 0);
 		}
 		else {
 			// Quantifiers surrounding the FSM
-			gp.addProcessors(m_slice, m_postProcessor);
-			m_slice.setProcessor(m_machine);
-			Connector.connect(m_slice, m_postProcessor);
-			gp.associateInput(0, m_slice, 0);
-			gp.associateOutput(0, m_postProcessor, 0);
+			for (Slice s : m_slice)
+			{
+				gp.addProcessor(s);
+			}
+			m_slice.get(m_slice.size() - 1).setProcessor(m_machine);
+			Processor last = m_slice.get(0);
+			for (Processor p : m_postProcessor)
+			{
+				Connector.connect(last, p);
+				last = p;
+			}
+			gp.associateInput(0, m_slice.get(0), 0);
+			gp.associateOutput(0, last, 0);
 		}
 		return gp;
 	}

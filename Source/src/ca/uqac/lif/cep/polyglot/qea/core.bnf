@@ -12,8 +12,8 @@
 
 # Quantifiers
 
-<quantifier>   := <foreach> | <exists> | <sum> | <avg> ;
-<foreach>      := for each <var> in <dom-fct> ;
+<quantifier>   := <forall> | <exists> | <sum> | <avg> ;
+<forall>       := forall <var> in <dom-fct> ;
 <exists>       := exists <var> in <dom-fct> ;
 <sum>          := sum <var> in <dom-fct> ;
 <avg>          := avg <var> in <dom-fct> ;
@@ -27,10 +27,9 @@
 
 # Assignments to state variables
 
-<initial-asg> := <var> \u003a\u003d <state-symb> ;
+<initial-asg> := <var> \u003a\u003d <const> ;
 <asg>         := <var> \u003a\u003d <rvalue> ;
 <rvalue>      := <plus> | <var> | <const> ;
 <plus>        := ( <rvalue> ) + ( <rvalue> ) ;
 <const>       := ^[\w\d]+;
-<state-symb>  := ^[\w\d]+;
 <var>         := ^\$[\w\d]+;

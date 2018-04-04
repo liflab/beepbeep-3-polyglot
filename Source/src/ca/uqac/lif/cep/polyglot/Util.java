@@ -33,8 +33,16 @@ public class Util
 	    return out;
 	}
 	
-	public static Object tryNumber(Object o)
+	public static Object tryPrimitive(Object o)
 	{
+		if (o instanceof String)
+		{
+			String s = (String) o;
+			if (s.equalsIgnoreCase("true"))
+				return true;
+			if (s.equalsIgnoreCase("false"))
+				return false;
+		}
 		try
 		{
 			return Numbers.NumberCast.getNumber(o);
