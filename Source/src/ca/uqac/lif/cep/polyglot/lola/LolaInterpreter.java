@@ -118,9 +118,10 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 
 	@Builds(rule="<offset>", pop=true, clean=true)
 	public Processor handleOffset(Object ... args) {
-		Offset off = new Offset(((Number) args[1]).intValue(), args[2]);
-		Passthrough pt = forkInput((String) args[0]);
-		Connector.connect(pt, off);
+		String s_name = (String) args[0];
+		NewOffset off = new NewOffset(s_name, ((Number) args[1]).intValue(), args[2]);
+		SentinelFork sf = (SentinelFork) getFork(s_name);
+		sf.registerNotifiable(off);
 		return add(off);
 	}
 
@@ -217,5 +218,11 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
 			i++;
 		}
 		return gp;
+	}
+	
+	@Override
+	protected SentinelFork newFork()
+	{
+		return new SentinelFork(0);
 	}
 }
