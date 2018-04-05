@@ -145,6 +145,25 @@ public class LolaInterpreterTest
 		o = pul.pull();
 		assertEquals(0, o);
 	}
+	
+	@Test
+	public void testOutput2() throws ParseException, ConnectorException, InvalidGrammarException, BuildException
+	{
+		Object o;
+		QueueSource source = new QueueSource(1).setEvents(true, true, false);
+		LolaInterpreter my_int = new LolaInterpreter();
+		String expression = "s2 = ite(s1, (s2[-1,0]) + (1), 0)\noutput s2";
+		NamedGroupProcessor gp = (NamedGroupProcessor) my_int.build(expression);
+		assertEquals(1, gp.getOutputArity());
+		Connector.connect(source, 0, gp, gp.getInputIndex("s1"));
+		Pullable pul = gp.getPullableOutput("s2");
+		o = pul.pull();
+		assertEquals(1.0f, o);
+		o = pul.pull();
+		assertEquals(2.0f, o);
+		o = pul.pull();
+		assertEquals(0, o);
+	}
 		
 	@Test
 	public void testTrigger1() throws ParseException, ConnectorException, InvalidGrammarException, BuildException

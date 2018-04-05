@@ -89,7 +89,11 @@ public class Offset extends SingleProcessor
 	@Override
 	public OffsetPullable getPullableOutput(int index)
 	{
-		return new OffsetPullable();
+		if (m_outputPullables[0] == null)
+		{
+			m_outputPullables[0] = new OffsetPullable();
+		}
+		return (OffsetPullable) m_outputPullables[0];
 	}
 
 	@Override
@@ -99,7 +103,7 @@ public class Offset extends SingleProcessor
 	}
 
 	protected class OffsetPullable implements Pullable
-	{
+	{		
 		@Override
 		public Iterator<Object> iterator()
 		{
@@ -177,9 +181,13 @@ public class Offset extends SingleProcessor
 		public boolean hasNext() 
 		{
 			if (m_offset < 0 && m_eventCount < -m_offset)
+			{
 				return true;
+			}
 			if (!m_bufferedOutputs.isEmpty())
+			{
 				return true;
+			}
 			if (m_offset > 0 && m_eventCount < m_offset)
 			{
 				for (int i = m_eventCount; i < m_offset; i++)

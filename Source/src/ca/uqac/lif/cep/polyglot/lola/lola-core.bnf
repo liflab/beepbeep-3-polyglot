@@ -4,7 +4,8 @@
 # ------------------------------------------------------------------
 
 <S>                 := <stream-def> | <trigger> | <output> ;
-<trigger>           := trigger <string> <stream-exp> ;
+<trigger>           := trigger <tr-name> <stream-exp> ;
+<tr-name>           := ^[\d\w]+;
 <stream-def>        := <name-def> = <stream-exp> ;
 <stream-exp>        := <other> | <if-then-else> | <offset> | <binary-op> | <unary-op>  
                        | <constant-stream> | <name> ;
