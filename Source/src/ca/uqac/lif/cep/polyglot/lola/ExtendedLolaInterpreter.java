@@ -153,7 +153,7 @@ public class ExtendedLolaInterpreter extends LolaInterpreter
 			String box_name = mat.group(1);
 			String[] s_names = mat.group(2).split(",");
 			NamedGroupProcessor orig_ngp = (NamedGroupProcessor) m_definedBoxes.get(box_name);
-			NamedGroupProcessor ngp = orig_ngp.duplicate();
+			NamedGroupProcessor ngp = (NamedGroupProcessor) orig_ngp.duplicate();
 			for (int i = 0; i < s_names.length; i++) {
 				Passthrough pt = forkInput(s_names[i].trim());
 				add(pt);

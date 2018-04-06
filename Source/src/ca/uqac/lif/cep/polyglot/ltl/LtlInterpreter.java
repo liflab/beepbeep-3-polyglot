@@ -93,8 +93,9 @@ public abstract class LtlInterpreter extends GroupProcessorBuilder {
 		ForAll q = new ForAll((String) args[1], (Function) args[3], phi);
 		// The argument of the quantifier was connected to the source;
 		// we must redirect it to the quantifier instead
+		Processor src = phi.getPullableInput(0).getProcessor();
 		phi.setPullableInput(0, null);
-		Connector.connect(phi.getPullableInput(0).getProcessor(), q);
+		Connector.connect(src, q);
 		return add(q);
 	}
 	
@@ -104,8 +105,9 @@ public abstract class LtlInterpreter extends GroupProcessorBuilder {
 		Exists q = new Exists((String) args[1], (Function) args[3], phi);
 		// The argument of the quantifier was connected to the source;
 		// we must redirect it to the quantifier instead
+		Processor src = phi.getPullableInput(0).getProcessor();
 		phi.setPullableInput(0, null);
-		Connector.connect(phi.getPullableInput(0).getProcessor(), q);
+		Connector.connect(src, q);
 		return add(q);
 	}
 	

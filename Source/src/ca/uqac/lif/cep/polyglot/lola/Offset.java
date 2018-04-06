@@ -97,13 +97,19 @@ public class Offset extends SingleProcessor
 	}
 
 	@Override
-	public Offset duplicate()
+	public Offset duplicate(boolean with_state)
 	{
-		return new Offset(m_offset, m_defaultValue);
+		Offset o = new Offset(m_offset, m_defaultValue);
+		if (with_state)
+		{
+			o.m_bufferedOutputs.addAll(m_bufferedOutputs);
+			o.m_eventCount = m_eventCount;
+		}
+		return o;
 	}
 
 	protected class OffsetPullable implements Pullable
-	{		
+	{	
 		@Override
 		public Iterator<Object> iterator()
 		{

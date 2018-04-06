@@ -34,10 +34,10 @@ public class NamedGroupProcessor extends GroupProcessor
 	}
 	
 	@Override
-	public NamedGroupProcessor duplicate()
+	public NamedGroupProcessor duplicate(boolean with_state)
 	{
 		NamedGroupProcessor ngp = new NamedGroupProcessor(getInputArity(), getOutputArity());
-		cloneInto(ngp);
+		cloneInto(ngp, with_state);
 		ngp.m_inNames.putAll(m_inNames);
 		ngp.m_outNames.putAll(m_outNames);
 		return ngp;

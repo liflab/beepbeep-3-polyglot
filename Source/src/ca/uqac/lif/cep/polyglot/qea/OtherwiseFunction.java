@@ -8,7 +8,7 @@ public class OtherwiseFunction extends Function
 {
 
 	@Override
-	public Function duplicate() {
+	public Function duplicate(boolean with_state) {
 		// TODO Auto-generated method stub
 		return null;
 	}

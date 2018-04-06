@@ -84,9 +84,14 @@ public class Trigger extends Sink
 	}
 
 	@Override
-	public Trigger duplicate() 
+	public Trigger duplicate(boolean with_state) 
 	{
-		return new Trigger(m_toNotify);
+		Trigger t = new Trigger(m_toNotify);
+		if (with_state)
+		{
+			t.m_currentValue = m_currentValue;
+		}
+		return t;
 	}
 	
 	/**

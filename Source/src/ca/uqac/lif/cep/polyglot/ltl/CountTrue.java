@@ -39,9 +39,14 @@ public class CountTrue extends UniformProcessor
 	}
 
 	@Override
-	public CountTrue duplicate()
+	public CountTrue duplicate(boolean with_state)
 	{
-		return new CountTrue(m_refCount);
+		CountTrue ct = new CountTrue(m_refCount);
+		if (with_state)
+		{
+			ct.m_count = m_count;
+		}
+		return ct;
 	}
 
 	@Override
