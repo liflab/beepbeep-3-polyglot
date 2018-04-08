@@ -36,9 +36,10 @@ public class AtomicTrooleanLtlInterpreter extends TrooleanLtlInterpreter {
 	@Builds(rule="<atom>")
 	public void handleAtom(java.util.ArrayDeque<Object> stack) {
 		String s = (String) stack.pop();
-		AtomicEvent ae = new AtomicEvent(s);
+		AtomicGroundTerm ae = new AtomicGroundTerm(s);
 		Passthrough pt = forkInput(0);
 		Connector.connect(pt, ae);
+		add(pt);
 		stack.push(add(ae));
 	}
 }

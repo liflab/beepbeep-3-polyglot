@@ -25,6 +25,8 @@ import ca.uqac.lif.cep.dsl.GroupProcessorBuilder;
 import ca.uqac.lif.cep.functions.ApplyFunction;
 import ca.uqac.lif.cep.functions.Function;
 import ca.uqac.lif.cep.ltl.*;
+import ca.uqac.lif.cep.polyglot.lola.AsyncFork;
+import ca.uqac.lif.cep.tmf.BlackHole;
 
 public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
 	public TrooleanLtlInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
@@ -37,32 +39,17 @@ public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
 	
 	@Builds(rule="<F>", pop=true, clean=true)
 	public Processor handleF(Object ... procs) {
-		Processor phi = (Processor) procs[0];
-		Processor src = phi.getPullableInput(0).getProcessor();
-		Processor op = new Sometime(phi);
-		phi.setPullableInput(0, null);
-		Connector.connect(src, op);
-		return add(op);
+		return handleUnaryOperator(new Sometime(), (Processor) procs[0]);
 	}
 	
 	@Builds(rule="<G>", pop=true, clean=true)
 	public Processor handleG(Object ... procs) {
-		Processor phi = (Processor) procs[0];
-		Processor src = phi.getPullableInput(0).getProcessor();
-		Processor op = new Always(phi);
-		phi.setPullableInput(0, null);
-		Connector.connect(src, op);
-		return add(op);
+		return handleUnaryOperator(new Always(), (Processor) procs[0]);
 	}
 	
 	@Builds(rule="<X>", pop=true, clean=true)
 	public Processor handleX(Object ... procs) {
-		Processor phi = (Processor) procs[0];
-		Processor src = phi.getPullableInput(0).getProcessor();
-		Processor op = new After(phi);
-		phi.setPullableInput(0, null);
-		Connector.connect(src, op);
-		return add(op);
+		return handleUnaryOperator(new After(), (Processor) procs[0]);
 	}
 	
 	@Builds(rule="<U>", pop=true, clean=true)
@@ -72,22 +59,22 @@ public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
 	
 	@Builds(rule="<and>", pop=true, clean=true)
 	public Processor handleAnd(Object ... procs) {
-		return handleBinary(Troolean.AND_FUNCTION, (Processor) procs[0], (Processor) procs[1]);
+		return handleBinaryFunction(Troolean.AND_FUNCTION, (Processor) procs[0], (Processor) procs[1]);
 	}
 	
 	@Builds(rule="<or>", pop=true, clean=true)
 	public Processor handleOr(Object ... procs) {
-		return handleBinary(Troolean.OR_FUNCTION, (Processor) procs[0], (Processor) procs[1]);
+		return handleBinaryFunction(Troolean.OR_FUNCTION, (Processor) procs[0], (Processor) procs[1]);
 	}
 	
 	@Builds(rule="<implies>", pop=true, clean=true)
 	public Processor handleImplies(Object ... procs) {
-		return handleBinary(Troolean.IMPLIES_FUNCTION, (Processor) procs[0], (Processor) procs[1]);
+		return handleBinaryFunction(Troolean.IMPLIES_FUNCTION, (Processor) procs[0], (Processor) procs[1]);
 	}
 	
 	@Builds(rule="<not>", pop=true, clean=true)
 	public Processor handleNot(Object ... procs) {
-		return handleUnary(Troolean.NOT_FUNCTION, (Processor) procs[0]);
+		return handleUnaryFunction(Troolean.NOT_FUNCTION, (Processor) procs[0]);
 	}
 	
 	@Builds(rule="<num>")
@@ -126,31 +113,48 @@ public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
 		return add(q);
 	}
 	
-	protected Processor handleBinary(Function f, Processor phi, Processor psi) {
+	protected Processor handleUnaryOperator(UnaryOperator op, Processor phi) {
+		Processor src = phi.getPullableInput(0).getProcessor();
+		phi.setPullableInput(0, null);
+		op.setProcessor(phi);
+		remove(phi);
+		Connector.connect(src, op);
+		return add(op);
+	}
+	
+	protected Processor handleBinaryFunction(Function f, Processor phi, Processor psi) {
 		GroupProcessor gp = new GroupProcessor(1, 1);
+		AsyncFork fork = new AsyncFork(2);
 		ApplyFunction af = new ApplyFunction(f);
-		Connector.connect(phi, 0, af, 0);
-		Connector.connect(psi, 0, af, 0);
-		gp.addProcessors(phi, psi, af);
-		Connector.connect(phi.getPullableInput(0).getProcessor(), 0, gp, 0);
-		Connector.connect(psi.getPullableInput(0).getProcessor(), 0, gp, 1);
+		Processor src_phi = phi.getPullableInput(0).getProcessor();
+		Processor src_psi = psi.getPullableInput(0).getProcessor();
 		phi.setPullableInput(0, null);
 		psi.setPullableInput(0, null);
-		gp.associateInput(0, phi, 0);
-		gp.associateInput(1, psi, 0);
+		Connector.connect(fork, 0, phi, 0);
+		Connector.connect(fork, 1, psi, 0);
+		Connector.connect(phi, 0, af, 0);
+		Connector.connect(psi, 0, af, 1);
+		gp.addProcessors(fork, phi, psi, af);
+		gp.associateInput(0, fork, 0);
 		gp.associateOutput(0, af, 0);
+		Connector.connect(src_phi, 0, gp, 0);
+		BlackHole bh = new BlackHole();
+		Connector.connect(src_psi, 0, bh, 0);
+		remove(phi, psi);
 		return add(gp);
 	}
 	
-	protected Processor handleUnary(Function f, Processor phi) {
+	protected Processor handleUnaryFunction(Function f, Processor phi) {
 		GroupProcessor gp = new GroupProcessor(1, 1);
 		ApplyFunction af = new ApplyFunction(f);
 		Connector.connect(phi, 0, af, 0);
 		gp.addProcessors(phi, af);
-		Connector.connect(phi.getPullableInput(0).getProcessor(), 0, gp, 0);
-		phi.setPullableInput(0, null);
 		gp.associateInput(0, phi, 0);
 		gp.associateOutput(0, af, 0);
+		Connector.connect(phi.getPullableInput(0).getProcessor(), 0, gp, 0);
+		phi.getPullableInput(0).getProcessor().setPushableOutput(0, null);
+		phi.setPullableInput(0, null);
+		remove(phi);
 		return add(gp);
 	}
 }

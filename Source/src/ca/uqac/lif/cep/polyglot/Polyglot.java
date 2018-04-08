@@ -15,7 +15,7 @@ import ca.uqac.lif.cep.functions.ApplyFunction;
 import ca.uqac.lif.cep.io.Print;
 import ca.uqac.lif.cep.io.ReadStringStream;
 import ca.uqac.lif.cep.polyglot.lola.ExtendedLolaInterpreter;
-import ca.uqac.lif.cep.polyglot.ltl.AtomicLtlInterpreter;
+import ca.uqac.lif.cep.polyglot.ltl.AtomicTrooleanLtlInterpreter;
 import ca.uqac.lif.cep.polyglot.ltl.XmlLtlInterpreter;
 import ca.uqac.lif.cep.polyglot.qea.AtomicQeaInterpreter;
 import ca.uqac.lif.cep.polyglot.qea.XmlQeaInterpreter;
@@ -26,7 +26,7 @@ import ca.uqac.lif.util.CliParser;
 import ca.uqac.lif.util.CliParser.Argument;
 import ca.uqac.lif.util.CliParser.ArgumentMap;
 
-public class Main 
+public class Polyglot 
 {
 	public static final int ERR_ARGS = 1;
 	public static final int ERR_NOT_FOUND = 2;
@@ -131,7 +131,7 @@ public class Main
 		pump_thread.start();
 	}
 	
-	protected static Processor getProcessor(String filename, String in_format) throws InvalidGrammarException, FileNotFoundException, BuildException
+	public static Processor getProcessor(String filename, String in_format) throws InvalidGrammarException, FileNotFoundException, BuildException
 	{
 		String[] file_parts = filename.split("\\.");
 		String extension = file_parts[file_parts.length - 1];
@@ -152,7 +152,7 @@ public class Main
 		{
 			if (in_format.equalsIgnoreCase("atomic"))
 			{
-				interpreter = new AtomicLtlInterpreter(); 
+				interpreter = new AtomicTrooleanLtlInterpreter(); 
 			}
 			else if (in_format.equalsIgnoreCase("xml"))
 			{
