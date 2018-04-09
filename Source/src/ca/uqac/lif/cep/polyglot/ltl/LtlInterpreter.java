@@ -24,6 +24,7 @@ import ca.uqac.lif.cep.dsl.GroupProcessorBuilder;
 import ca.uqac.lif.cep.functions.ApplyFunction;
 import ca.uqac.lif.cep.functions.Function;
 import ca.uqac.lif.cep.ltl.*;
+import ca.uqac.lif.cep.polyglot.AsyncFork;
 import ca.uqac.lif.cep.util.Booleans;
 
 public abstract class LtlInterpreter extends GroupProcessorBuilder {
@@ -120,5 +121,11 @@ public abstract class LtlInterpreter extends GroupProcessorBuilder {
 		Connector.connect((Processor) procs[0], 0, p, 0);
 		Connector.connect((Processor) procs[1], 0, p, 1);
 		return add(p);
+	}
+	
+	@Override
+	protected AsyncFork newFork()
+	{
+		return new AsyncFork(0);
 	}
 }

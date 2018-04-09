@@ -143,6 +143,32 @@ public class AtomicTrooleanLtlInterpreterTest
 	}
 	
 	@Test
+	public void testDuplicateOrPush() throws InvalidGrammarException, BuildException
+	{
+		String formula = "(a) ∨ (b)";
+		AtomicTrooleanLtlInterpreter ali = new AtomicTrooleanLtlInterpreter();
+		GroupProcessor gp = (GroupProcessor) ali.build(formula).duplicate();
+		SinkLast sink = new SinkLast();
+		Connector.connect(gp, sink);
+		Pushable p = gp.getPushableInput();
+		p.push("a");
+		assertEquals(Troolean.Value.TRUE, sink.getLast()[0]);
+	}
+	
+	@Test
+	public void testDuplicateAtomPush() throws InvalidGrammarException, BuildException
+	{
+		String formula = "a";
+		AtomicTrooleanLtlInterpreter ali = new AtomicTrooleanLtlInterpreter();
+		GroupProcessor gp = (GroupProcessor) ali.build(formula).duplicate();
+		SinkLast sink = new SinkLast();
+		Connector.connect(gp, sink);
+		Pushable p = gp.getPushableInput();
+		p.push("a");
+		assertEquals(Troolean.Value.TRUE, sink.getLast()[0]);
+	}
+	
+	@Test
 	public void testAlwaysOr() throws InvalidGrammarException, BuildException
 	{
 		Troolean.Value b;

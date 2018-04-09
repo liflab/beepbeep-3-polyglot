@@ -27,6 +27,7 @@ import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.GroupProcessor;
 import ca.uqac.lif.cep.Processor;
 import ca.uqac.lif.cep.functions.*;
+import ca.uqac.lif.cep.polyglot.AsyncFork;
 import ca.uqac.lif.cep.tmf.*;
 import ca.uqac.lif.cep.util.Numbers;
 

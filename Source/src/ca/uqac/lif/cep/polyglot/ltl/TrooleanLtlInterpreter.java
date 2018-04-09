@@ -25,7 +25,7 @@ import ca.uqac.lif.cep.dsl.GroupProcessorBuilder;
 import ca.uqac.lif.cep.functions.ApplyFunction;
 import ca.uqac.lif.cep.functions.Function;
 import ca.uqac.lif.cep.ltl.*;
-import ca.uqac.lif.cep.polyglot.lola.AsyncFork;
+import ca.uqac.lif.cep.polyglot.AsyncFork;
 import ca.uqac.lif.cep.tmf.BlackHole;
 
 public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
@@ -134,13 +134,14 @@ public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
 		Connector.connect(fork, 1, psi, 0);
 		Connector.connect(phi, 0, af, 0);
 		Connector.connect(psi, 0, af, 1);
-		gp.addProcessors(fork, phi, psi, af);
+		BlackHole bh = new BlackHole();
+		gp.addProcessors(fork, phi, psi, af, bh);
 		gp.associateInput(0, fork, 0);
 		gp.associateOutput(0, af, 0);
 		Connector.connect(src_phi, 0, gp, 0);
-		BlackHole bh = new BlackHole();
 		Connector.connect(src_psi, 0, bh, 0);
 		remove(phi, psi);
+		add(bh);
 		return add(gp);
 	}
 	
@@ -156,5 +157,11 @@ public abstract class TrooleanLtlInterpreter extends GroupProcessorBuilder {
 		phi.setPullableInput(0, null);
 		remove(phi);
 		return add(gp);
+	}
+	
+	@Override
+	protected AsyncFork newFork()
+	{
+		return new AsyncFork(0);
 	}
 }

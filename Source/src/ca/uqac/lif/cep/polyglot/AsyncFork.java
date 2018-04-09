@@ -1,4 +1,4 @@
-package ca.uqac.lif.cep.polyglot.lola;
+package ca.uqac.lif.cep.polyglot;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -24,6 +24,12 @@ public class AsyncFork extends Fork
 			m_outputPullables[index] = new AsyncPullable(index);
 		}
 		return m_outputPullables[index];
+	}
+	
+	@Override
+	public AsyncFork duplicate(boolean with_state)
+	{
+		return new AsyncFork(getOutputArity());
 	}
 	
 	protected class AsyncPullable implements Pullable
