@@ -63,7 +63,7 @@ public class XmlLtlInterpreterTest
 		Connector.connect(src, xml_parse, gp);
 		Pullable p = gp.getPullableOutput();
 		b = (Troolean.Value) p.pull();
-		assertNull(b);
+		assertEquals(Troolean.Value.FALSE, b);
 	}
 	
 	@Test
@@ -79,6 +79,6 @@ public class XmlLtlInterpreterTest
 		Connector.connect(src, xml_parse, gp);
 		Pullable p = gp.getPullableOutput();
 		b = (Troolean.Value) p.pull();
-		assertNull(b);
+		assertEquals(Troolean.Value.FALSE, b);
 	}
 }

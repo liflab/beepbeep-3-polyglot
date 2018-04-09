@@ -75,6 +75,18 @@ public class AtomicTrooleanLtlInterpreterTest
 	}
 	
 	@Test
+	public void test4() throws InvalidGrammarException, BuildException
+	{
+		String formula = "G ((g) → (X (h)))";
+		AtomicTrooleanLtlInterpreter ali = new AtomicTrooleanLtlInterpreter();
+		GroupProcessor gp = (GroupProcessor) ali.build(formula).duplicate();
+		Pushable p = gp.getPushableInput();
+		SinkLast sink = new SinkLast();
+		Connector.connect(gp, sink);
+		p.push("a");
+	}
+	
+	@Test
 	public void testDuplicateAtom() throws InvalidGrammarException, BuildException
 	{
 		Troolean.Value b;
@@ -207,7 +219,6 @@ public class AtomicTrooleanLtlInterpreterTest
 	@Test
 	public void testDuplicateAlwaysOrPush() throws InvalidGrammarException, BuildException
 	{
-		Troolean.Value b;
 		String formula = "G ((a) ∨ (b))";
 		AtomicTrooleanLtlInterpreter ali = new AtomicTrooleanLtlInterpreter();
 		GroupProcessor gp = (GroupProcessor) ali.build(formula).duplicate();
@@ -215,5 +226,6 @@ public class AtomicTrooleanLtlInterpreterTest
 		Connector.connect(gp, sink);
 		Pushable p = gp.getPushableInput();
 		p.push("a");
+		assertEquals(Troolean.Value.INCONCLUSIVE, sink.getLast()[0]);
 	}
 }
