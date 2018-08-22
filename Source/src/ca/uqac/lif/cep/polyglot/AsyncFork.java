@@ -3,7 +3,6 @@ package ca.uqac.lif.cep.polyglot;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import ca.uqac.lif.cep.NextStatus;
 import ca.uqac.lif.cep.Processor;
 import ca.uqac.lif.cep.Pullable;
 import ca.uqac.lif.cep.tmf.Fork;

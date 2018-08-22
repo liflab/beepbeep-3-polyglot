@@ -54,8 +54,8 @@ public class XmlLtlInterpreter extends LtlInterpreter {
 	public Processor handleVEquals(Object ... args)	{
 		String var = (String) args[0];
 		String cons = (String) args[1];
-		ChangeArity af = new ChangeArity(1, new FunctionTree(Equals.instance,
-				new FunctionTree(Strings.toString, new ContextVariable(var)), new Constant(cons)));
+		ApplyFunction af = new ApplyFunction(new RaiseArity(1, new FunctionTree(Equals.instance,
+        new FunctionTree(Strings.toString, new ContextVariable(var)), new Constant(cons))));
 		Passthrough pt = forkInput(0);
 		Connector.connect(pt, af);
 		return add(af);
