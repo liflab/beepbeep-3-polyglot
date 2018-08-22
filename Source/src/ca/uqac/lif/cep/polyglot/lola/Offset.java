@@ -24,9 +24,9 @@ import java.util.Queue;
 import ca.uqac.lif.cep.Processor;
 import ca.uqac.lif.cep.ProcessorException;
 import ca.uqac.lif.cep.Pullable;
-import ca.uqac.lif.cep.SingleProcessor;
+import ca.uqac.lif.cep.SynchronousProcessor;
 
-public class Offset extends SingleProcessor 
+public class Offset extends SynchronousProcessor 
 {
 	protected int m_offset;
 
