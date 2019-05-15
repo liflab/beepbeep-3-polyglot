@@ -26,37 +26,37 @@ import ca.uqac.lif.cep.functions.UnaryFunction;
  * Computes the average of the values in a map
  */
 @SuppressWarnings("rawtypes")
-public class MapAverage extends UnaryFunction<Map,Number>
+public class MapAverage extends UnaryFunction<Map, Number>
 {
-	public static final transient MapAverage instance = new MapAverage();
-	
-	private MapAverage()
-	{
-		super(Map.class, Number.class);
-	}
+  public static final transient MapAverage instance = new MapAverage();
 
-	@Override
-	public Number getValue(Map m) 
-	{
-		float sum = 0;
-		float total = 0;
-		for (Object o : m.values())
-		{
-			if (o instanceof Function)
-			{
-				Object[] out = new Object[1];
-				Function f = (Function) o;
-				((Function) o).evaluate(new Object[f.getInputArity()], out);
-				sum += ((Number) out[0]).floatValue();
-			}
-			else
-			{
-				sum += ((Number) o).floatValue();
-			}
-			total++;
-		}
-		if (total == 0)
-			return 0;
-		return sum / total;
-	}
+  private MapAverage()
+  {
+    super(Map.class, Number.class);
+  }
+
+  @Override
+  public Number getValue(Map m)
+  {
+    float sum = 0;
+    float total = 0;
+    for (Object o : m.values())
+    {
+      if (o instanceof Function)
+      {
+        Object[] out = new Object[1];
+        Function f = (Function) o;
+        ((Function) o).evaluate(new Object[f.getInputArity()], out);
+        sum += ((Number) out[0]).floatValue();
+      }
+      else
+      {
+        sum += ((Number) o).floatValue();
+      }
+      total++;
+    }
+    if (total == 0)
+      return 0;
+    return sum / total;
+  }
 }

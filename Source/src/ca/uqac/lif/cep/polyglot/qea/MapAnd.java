@@ -26,33 +26,33 @@ import ca.uqac.lif.cep.functions.UnaryFunction;
  * Computes the conjunction of the values in a map
  */
 @SuppressWarnings("rawtypes")
-public class MapAnd extends UnaryFunction<Map,Boolean>
+public class MapAnd extends UnaryFunction<Map, Boolean>
 {
-	public static final transient MapAnd instance = new MapAnd();
-	
-	private MapAnd()
-	{
-		super(Map.class, Boolean.class);
-	}
+  public static final transient MapAnd instance = new MapAnd();
 
-	@Override
-	public Boolean getValue(Map m) 
-	{
-		boolean b = true;
-		for (Object o : m.values())
-		{
-			if (o instanceof Function)
-			{
-				Object[] out = new Object[1];
-				Function f = (Function) o;
-				((Function) o).evaluate(new Object[f.getInputArity()], out);
-				b &= ((Boolean) out[0]).booleanValue();
-			}
-			else
-			{
-				b &= ((Boolean) o).booleanValue();
-			}
-		}
-		return b;
-	}
+  private MapAnd()
+  {
+    super(Map.class, Boolean.class);
+  }
+
+  @Override
+  public Boolean getValue(Map m)
+  {
+    boolean b = true;
+    for (Object o : m.values())
+    {
+      if (o instanceof Function)
+      {
+        Object[] out = new Object[1];
+        Function f = (Function) o;
+        ((Function) o).evaluate(new Object[f.getInputArity()], out);
+        b &= ((Boolean) out[0]).booleanValue();
+      }
+      else
+      {
+        b &= ((Boolean) o).booleanValue();
+      }
+    }
+    return b;
+  }
 }

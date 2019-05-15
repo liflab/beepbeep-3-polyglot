@@ -18,6 +18,7 @@
 
 /**
  * A LOLA interpreter for BeepBeep.
+ * 
  * @author Sylvain Hallé
  */
 package ca.uqac.lif.cep.polyglot.lola;

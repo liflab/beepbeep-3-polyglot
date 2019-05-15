@@ -21,25 +21,31 @@ import ca.uqac.lif.bullwinkle.Builds;
 import ca.uqac.lif.cep.Connector;
 import ca.uqac.lif.cep.tmf.Passthrough;
 
-public class AtomicTrooleanLtlInterpreter extends TrooleanLtlInterpreter {
-	
-	public AtomicTrooleanLtlInterpreter() throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException {
-		super();
-		setGrammar(super.getGrammar() + "\n" + getGrammar());
-	}
-	
-	@Override
-	protected String getGrammar() {
-		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(LtlInterpreter.class.getResourceAsStream("atomic.bnf"));
-	}
-	
-	@Builds(rule="<atom>")
-	public void handleAtom(java.util.ArrayDeque<Object> stack) {
-		String s = (String) stack.pop();
-		AtomicGroundTerm ae = new AtomicGroundTerm(s);
-		Passthrough pt = forkInput(0);
-		Connector.connect(pt, ae);
-		add(pt);
-		stack.push(add(ae));
-	}
+public class AtomicTrooleanLtlInterpreter extends TrooleanLtlInterpreter
+{
+
+  public AtomicTrooleanLtlInterpreter()
+      throws ca.uqac.lif.bullwinkle.BnfParser.InvalidGrammarException
+  {
+    super();
+    setGrammar(super.getGrammar() + "\n" + getGrammar());
+  }
+
+  @Override
+  protected String getGrammar()
+  {
+    return ca.uqac.lif.cep.polyglot.Util
+        .convertStreamToString(LtlInterpreter.class.getResourceAsStream("atomic.bnf"));
+  }
+
+  @Builds(rule = "<atom>")
+  public void handleAtom(java.util.ArrayDeque<Object> stack)
+  {
+    String s = (String) stack.pop();
+    AtomicGroundTerm ae = new AtomicGroundTerm(s);
+    Passthrough pt = forkInput(0);
+    Connector.connect(pt, ae);
+    add(pt);
+    stack.push(add(ae));
+  }
 }

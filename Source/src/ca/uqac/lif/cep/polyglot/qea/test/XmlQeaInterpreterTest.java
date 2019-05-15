@@ -32,98 +32,104 @@ import ca.uqac.lif.cep.polyglot.qea.XmlQeaInterpreter;
 import ca.uqac.lif.cep.tmf.QueueSource;
 import ca.uqac.lif.cep.xml.ParseXml;
 
-public class XmlQeaInterpreterTest 
+public class XmlQeaInterpreterTest
 {
-	@Test
-	public void testXPathGuard1() throws InvalidGrammarException, BuildException
-	{
-		// Just check that the parsing does not throw an exception
-		XmlQeaInterpreter q_int = new XmlQeaInterpreter();
-		String expression = "0 -> 0 [/e/action = bar]";
-		assertNotNull(q_int.build(expression));
-	}
-	
-	@Test
-	public void testXPathGuard2() throws InvalidGrammarException, BuildException
-	{
-		Object o;
-		XmlQeaInterpreter q_int = new XmlQeaInterpreter();
-		String expression = "0 [foo]\n1 [bar]\n0 -> 1 [e/action/text() = foo]\n1 -> 0 [e/action/text() = bar]";
-		GroupProcessor gp = (GroupProcessor) q_int.build(expression);
-		QueueSource src = new QueueSource().setEvents("<e><action>foo</action></e>", "<e><action>bar</action></e>");
-		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
-		Connector.connect(src, xml_parse, gp);
-		Pullable p = gp.getPullableOutput();
-		o = p.pull();
-		assertEquals("bar", o);
-		o = p.pull();
-		assertEquals("foo", o);
-	}
-	
-	@Test
-	public void testXPathQuantifier1() throws InvalidGrammarException, BuildException
-	{
-		Object o;
-		XmlQeaInterpreter q_int = new XmlQeaInterpreter();
-		String expression = Util.convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test5.qea"));
-		GroupProcessor gp = (GroupProcessor) q_int.build(expression);
-		QueueSource src = new QueueSource().setEvents("<e><id>foo</id></e>", "<e><id>bar</id></e>", "<e><id>foo</id></e>", "<e><id>foo</id></e>").loop(false);
-		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
-		Connector.connect(src, xml_parse, gp);
-		Pullable p = gp.getPullableOutput();
-		o = p.pull();
-		assertEquals(true, o);
-		o = p.pull();
-		assertEquals(true, o);
-		o = p.pull();
-		assertEquals(true, o);
-		o = p.pull();
-		assertEquals(false, o);
-	}
-	
-	@Test
-	public void testXPathQuantifier2() throws InvalidGrammarException, BuildException
-	{
-		Object o;
-		XmlQeaInterpreter q_int = new XmlQeaInterpreter();
-		String expression = Util.convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test5.qea"));
-		GroupProcessor gp = (GroupProcessor) q_int.build(expression);
-		QueueSource src = new QueueSource().setEvents("<e><id>foo</id></e>", "<e><id>bar</id><id>foo</id></e>", "<e><id>foo</id></e>", "<e><id>foo</id></e>").loop(false);
-		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
-		Connector.connect(src, xml_parse, gp);
-		Pullable p = gp.getPullableOutput();
-		o = p.pull();
-		assertEquals(true, o);
-		o = p.pull();
-		assertEquals(true, o);
-		o = p.pull();
-		assertEquals(false, o);
-		o = p.pull();
-		assertEquals(false, o);
-	}
-	
-	@Test
-	public void testXPathQuantifier3() throws InvalidGrammarException, BuildException
-	{
-		Object o;
-		XmlQeaInterpreter q_int = new XmlQeaInterpreter();
-		String expression = Util.convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test6.qea"));
-		GroupProcessor gp = (GroupProcessor) q_int.build(expression);
-		QueueSource src = new QueueSource().setEvents(
-				"<e><id>foo</id><action>a</action><p>0</p></e>",
-				"<e><id>bar</id><action>a</action><p>0</p></e>",
-				"<e><id>foo</id><action>b</action><p>1</p></e>",
-				"<e><id>bar</id><action>b</action><p>1</p></e>").loop(false);
-		ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
-		Connector.connect(src, xml_parse, gp);
-		Pullable p = gp.getPullableOutput();
-		o = p.pull();
-		assertEquals(false, o);
-		o = p.pull();
-		assertEquals(false, o);
-		o = p.pull();
-		assertEquals(false, o);
-		o = p.pull();
-		assertEquals(true, o);
-	}
+  @Test
+  public void testXPathGuard1() throws InvalidGrammarException, BuildException
+  {
+    // Just check that the parsing does not throw an exception
+    XmlQeaInterpreter q_int = new XmlQeaInterpreter();
+    String expression = "0 -> 0 [/e/action = bar]";
+    assertNotNull(q_int.build(expression));
+  }
+
+  @Test
+  public void testXPathGuard2() throws InvalidGrammarException, BuildException
+  {
+    Object o;
+    XmlQeaInterpreter q_int = new XmlQeaInterpreter();
+    String expression = "0 [foo]\n1 [bar]\n0 -> 1 [e/action/text() = foo]\n1 -> 0 [e/action/text() = bar]";
+    GroupProcessor gp = (GroupProcessor) q_int.build(expression);
+    QueueSource src = new QueueSource().setEvents("<e><action>foo</action></e>",
+        "<e><action>bar</action></e>");
+    ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+    Connector.connect(src, xml_parse, gp);
+    Pullable p = gp.getPullableOutput();
+    o = p.pull();
+    assertEquals("bar", o);
+    o = p.pull();
+    assertEquals("foo", o);
+  }
+
+  @Test
+  public void testXPathQuantifier1() throws InvalidGrammarException, BuildException
+  {
+    Object o;
+    XmlQeaInterpreter q_int = new XmlQeaInterpreter();
+    String expression = Util
+        .convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test5.qea"));
+    GroupProcessor gp = (GroupProcessor) q_int.build(expression);
+    QueueSource src = new QueueSource().setEvents("<e><id>foo</id></e>", "<e><id>bar</id></e>",
+        "<e><id>foo</id></e>", "<e><id>foo</id></e>").loop(false);
+    ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+    Connector.connect(src, xml_parse, gp);
+    Pullable p = gp.getPullableOutput();
+    o = p.pull();
+    assertEquals(true, o);
+    o = p.pull();
+    assertEquals(true, o);
+    o = p.pull();
+    assertEquals(true, o);
+    o = p.pull();
+    assertEquals(false, o);
+  }
+
+  @Test
+  public void testXPathQuantifier2() throws InvalidGrammarException, BuildException
+  {
+    Object o;
+    XmlQeaInterpreter q_int = new XmlQeaInterpreter();
+    String expression = Util
+        .convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test5.qea"));
+    GroupProcessor gp = (GroupProcessor) q_int.build(expression);
+    QueueSource src = new QueueSource().setEvents("<e><id>foo</id></e>",
+        "<e><id>bar</id><id>foo</id></e>", "<e><id>foo</id></e>", "<e><id>foo</id></e>")
+        .loop(false);
+    ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+    Connector.connect(src, xml_parse, gp);
+    Pullable p = gp.getPullableOutput();
+    o = p.pull();
+    assertEquals(true, o);
+    o = p.pull();
+    assertEquals(true, o);
+    o = p.pull();
+    assertEquals(false, o);
+    o = p.pull();
+    assertEquals(false, o);
+  }
+
+  @Test
+  public void testXPathQuantifier3() throws InvalidGrammarException, BuildException
+  {
+    Object o;
+    XmlQeaInterpreter q_int = new XmlQeaInterpreter();
+    String expression = Util
+        .convertStreamToString(AtomicQeaInterpreterTest.class.getResourceAsStream("test6.qea"));
+    GroupProcessor gp = (GroupProcessor) q_int.build(expression);
+    QueueSource src = new QueueSource().setEvents("<e><id>foo</id><action>a</action><p>0</p></e>",
+        "<e><id>bar</id><action>a</action><p>0</p></e>",
+        "<e><id>foo</id><action>b</action><p>1</p></e>",
+        "<e><id>bar</id><action>b</action><p>1</p></e>").loop(false);
+    ApplyFunction xml_parse = new ApplyFunction(ParseXml.instance);
+    Connector.connect(src, xml_parse, gp);
+    Pullable p = gp.getPullableOutput();
+    o = p.pull();
+    assertEquals(false, o);
+    o = p.pull();
+    assertEquals(false, o);
+    o = p.pull();
+    assertEquals(false, o);
+    o = p.pull();
+    assertEquals(true, o);
+  }
 }

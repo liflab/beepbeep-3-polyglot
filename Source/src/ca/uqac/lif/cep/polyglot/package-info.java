@@ -17,8 +17,9 @@
  */
 
 /**
- * Main package of the Polyglot palette. This package contains mostly
- * utility methods and a command-line "main" class.
+ * Main package of the Polyglot palette. This package contains mostly utility
+ * methods and a command-line "main" class.
+ * 
  * @author Sylvain Hallé
  */
 package ca.uqac.lif.cep.polyglot;

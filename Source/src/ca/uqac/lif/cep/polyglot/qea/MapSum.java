@@ -26,33 +26,33 @@ import ca.uqac.lif.cep.functions.UnaryFunction;
  * Computes the sum of the values in a map
  */
 @SuppressWarnings("rawtypes")
-public class MapSum extends UnaryFunction<Map,Number>
+public class MapSum extends UnaryFunction<Map, Number>
 {
-	public static final transient MapSum instance = new MapSum();
-	
-	private MapSum()
-	{
-		super(Map.class, Number.class);
-	}
+  public static final transient MapSum instance = new MapSum();
 
-	@Override
-	public Number getValue(Map m) 
-	{
-		float sum = 0;
-		for (Object o : m.values())
-		{
-			if (o instanceof Function)
-			{
-				Object[] out = new Object[1];
-				Function f = (Function) o;
-				((Function) o).evaluate(new Object[f.getInputArity()], out);
-				sum += ((Number) out[0]).floatValue();
-			}
-			else
-			{
-				sum += ((Number) o).floatValue();
-			}
-		}
-		return sum;
-	}
+  private MapSum()
+  {
+    super(Map.class, Number.class);
+  }
+
+  @Override
+  public Number getValue(Map m)
+  {
+    float sum = 0;
+    for (Object o : m.values())
+    {
+      if (o instanceof Function)
+      {
+        Object[] out = new Object[1];
+        Function f = (Function) o;
+        ((Function) o).evaluate(new Object[f.getInputArity()], out);
+        sum += ((Number) out[0]).floatValue();
+      }
+      else
+      {
+        sum += ((Number) o).floatValue();
+      }
+    }
+    return sum;
+  }
 }

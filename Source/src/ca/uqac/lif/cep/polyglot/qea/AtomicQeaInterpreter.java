@@ -26,25 +26,30 @@ import ca.uqac.lif.cep.functions.IdentityFunction;
 import ca.uqac.lif.cep.functions.StreamVariable;
 import ca.uqac.lif.cep.util.Equals;
 
-public class AtomicQeaInterpreter extends QeaInterpreter 
+public class AtomicQeaInterpreter extends QeaInterpreter
 {
-	public AtomicQeaInterpreter() throws InvalidGrammarException {
-		super();
-		setGrammar(super.getGrammar() + "\n" + getGrammar());
-	}
-	
-	@Override
-	protected String getGrammar() {
-		return ca.uqac.lif.cep.polyglot.Util.convertStreamToString(QeaInterpreter.class.getResourceAsStream("atomic.bnf"));
-	}
-	
-	@Builds(rule="<atom>", pop=true)
-	public Function handleAtom(Object ... args) {
-		return new FunctionTree(Equals.instance, new Constant((String) args[0]), StreamVariable.X);
-	}
-	
-	@Builds(rule="<dom-fct>", pop=true)
-	public Function handleDot(Object ... args) {
-		return new IdentityFunction(1);
-	}
+  public AtomicQeaInterpreter() throws InvalidGrammarException
+  {
+    super();
+    setGrammar(super.getGrammar() + "\n" + getGrammar());
+  }
+
+  @Override
+  protected String getGrammar()
+  {
+    return ca.uqac.lif.cep.polyglot.Util
+        .convertStreamToString(QeaInterpreter.class.getResourceAsStream("atomic.bnf"));
+  }
+
+  @Builds(rule = "<atom>", pop = true)
+  public Function handleAtom(Object... args)
+  {
+    return new FunctionTree(Equals.instance, new Constant((String) args[0]), StreamVariable.X);
+  }
+
+  @Builds(rule = "<dom-fct>", pop = true)
+  public Function handleDot(Object... args)
+  {
+    return new IdentityFunction(1);
+  }
 }

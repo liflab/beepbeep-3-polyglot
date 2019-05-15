@@ -20,36 +20,36 @@ package ca.uqac.lif.cep.polyglot;
 import ca.uqac.lif.cep.functions.FunctionException;
 import ca.uqac.lif.cep.util.Numbers;
 
-public class Util 
+public class Util
 {
-	public static String convertStreamToString(java.io.InputStream is) 
-	{
-	    @SuppressWarnings("resource")
-		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-	    String out = "";
-	    if (s.hasNext())
-	    	out = s.next();
-	    s.close();
-	    return out;
-	}
-	
-	public static Object tryPrimitive(Object o)
-	{
-		if (o instanceof String)
-		{
-			String s = (String) o;
-			if (s.equalsIgnoreCase("true"))
-				return true;
-			if (s.equalsIgnoreCase("false"))
-				return false;
-		}
-		try
-		{
-			return Numbers.NumberCast.getNumber(o);
-		}
-		catch (FunctionException e)
-		{
-			return o;
-		}
-	}
+  public static String convertStreamToString(java.io.InputStream is)
+  {
+    @SuppressWarnings("resource")
+    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+    String out = "";
+    if (s.hasNext())
+      out = s.next();
+    s.close();
+    return out;
+  }
+
+  public static Object tryPrimitive(Object o)
+  {
+    if (o instanceof String)
+    {
+      String s = (String) o;
+      if (s.equalsIgnoreCase("true"))
+        return true;
+      if (s.equalsIgnoreCase("false"))
+        return false;
+    }
+    try
+    {
+      return Numbers.NumberCast.getNumber(o);
+    }
+    catch (FunctionException e)
+    {
+      return o;
+    }
+  }
 }
