@@ -3,6 +3,7 @@ package ca.uqac.lif.cep.polyglot.qea;
 import java.util.Set;
 
 import ca.uqac.lif.cep.functions.Function;
+import ca.uqac.lif.cep.Context;
 
 public class OtherwiseFunction extends Function
 {
@@ -15,7 +16,7 @@ public class OtherwiseFunction extends Function
   }
 
   @Override
-  public void evaluate(Object[] inputs, Object[] outputs)
+  public void evaluate(Object[] inputs, Object[] outputs, Context context)
   {
     // TODO Auto-generated method stub
 
