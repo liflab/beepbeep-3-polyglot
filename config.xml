@@ -57,7 +57,7 @@
       <name>BeepBeep 3 Core</name>
       <classname>ca.uqac.lif.cep.Processor</classname>
       <files>
-        <zip>https://github.com/liflab/beepbeep-3/releases/download/v0.8.1-alpha/beepbeep-3-0.8.1-alpha.zip</zip>
+        <zip>https://github.com/liflab/beepbeep-3/releases/download/v0.10.2-alpha/beepbeep-3-0.10.2-alpha.zip</zip>
       </files>
       <bundle>false</bundle>
     </dependency>
