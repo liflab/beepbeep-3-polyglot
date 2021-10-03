@@ -4,6 +4,7 @@ import java.util.Set;
 
 import ca.uqac.lif.cep.functions.Function;
 import ca.uqac.lif.cep.Context;
+import ca.uqac.lif.cep.EventTracker;
 
 public class OtherwiseFunction extends Function
 {
@@ -16,7 +17,7 @@ public class OtherwiseFunction extends Function
   }
 
   @Override
-  public void evaluate(Object[] inputs, Object[] outputs, Context context)
+  public void evaluate(Object[] inputs, Object[] outputs, Context context, EventTracker tracker)
   {
     // TODO Auto-generated method stub
 
