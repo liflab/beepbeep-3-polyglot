@@ -1,6 +1,6 @@
 /*
     A LOLA interpreter for BeepBeep
-    Copyright (C) 2017-2018 Sylvain Hallé
+    Copyright (C) 2017-2021 Sylvain Hallé
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published
@@ -85,11 +85,29 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
     Connector.connect((Processor) args[1], 0, fp, 1);
     return add(fp);
   }
+  
+  @Builds(rule = "<geq>", pop = true, clean = true)
+  public Processor handleGeq(Object... args)
+  {
+    ApplyFunction fp = new ApplyFunction(Numbers.isGreaterOrEqual);
+    Connector.connect((Processor) args[0], 0, fp, 0);
+    Connector.connect((Processor) args[1], 0, fp, 1);
+    return add(fp);
+  }
 
   @Builds(rule = "<lt>", pop = true, clean = true)
   public Processor handleLt(Object... args)
   {
     ApplyFunction fp = new ApplyFunction(Numbers.isLessThan);
+    Connector.connect((Processor) args[0], 0, fp, 0);
+    Connector.connect((Processor) args[1], 0, fp, 1);
+    return add(fp);
+  }
+  
+  @Builds(rule = "<leq>", pop = true, clean = true)
+  public Processor handleLeq(Object... args)
+  {
+    ApplyFunction fp = new ApplyFunction(Numbers.isLessOrEqual);
     Connector.connect((Processor) args[0], 0, fp, 0);
     Connector.connect((Processor) args[1], 0, fp, 1);
     return add(fp);
@@ -146,6 +164,15 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
   public Processor handlePlus(Object... args)
   {
     ApplyFunction fp = new ApplyFunction(Numbers.addition);
+    Connector.connect((Processor) args[0], 0, fp, 0);
+    Connector.connect((Processor) args[1], 0, fp, 1);
+    return add(fp);
+  }
+  
+  @Builds(rule = "<minus>", pop = true, clean = true)
+  public Processor handleMinus(Object... args)
+  {
+    ApplyFunction fp = new ApplyFunction(Numbers.subtraction);
     Connector.connect((Processor) args[0], 0, fp, 0);
     Connector.connect((Processor) args[1], 0, fp, 1);
     return add(fp);

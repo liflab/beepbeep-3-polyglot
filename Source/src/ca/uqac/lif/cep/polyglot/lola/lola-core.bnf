@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------
 # A grammar for LOLA stream specifications
-# (C) 2017-2018 Sylvain Hallé
+# (C) 2017-2021 Sylvain Hallé
 # ------------------------------------------------------------------
 
 <S>                 := <stream-def> | <trigger> | <output> ;
@@ -17,12 +17,15 @@
 
 # Binary operators
 
-<binary-op>         := <plus> | <and> | <or> | <gt> | <lt> ;
+<binary-op>         := <plus> | <minus> | <and> | <or> | <gt> | <lt> | <geq> | <leq> ;
 <plus>              := ( <stream-exp> ) + ( <stream-exp> ) ;
+<minus>             := ( <stream-exp> ) - ( <stream-exp> ) ;
 <and>               := ( <stream-exp> ) & ( <stream-exp> ) ;
 <or>                := ( <stream-exp> ) \u007c ( <stream-exp> ) ;
 <lt>                := ( <stream-exp> ) \u003c ( <stream-exp> ) ;
+<leq>               := ( <stream-exp> ) \u003c= ( <stream-exp> ) ;
 <gt>                := ( <stream-exp> ) \u003e ( <stream-exp> ) ;
+<geq>               := ( <stream-exp> ) \u003e= ( <stream-exp> ) ;
 
 # Unary operators
 

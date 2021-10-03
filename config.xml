@@ -61,5 +61,27 @@
       </files>
       <bundle>false</bundle>
     </dependency>
+    <dependency>
+      <!--
+      DSL palette
+      -->
+      <name>BeepBeep DSL palette</name>
+      <classname>ca.uqac.lif.cep.dsl.MultilineGroupProcessorBuilder</classname>
+      <bundle>false</bundle>
+      <files>
+        <jar>https://github.com/liflab/beepbeep-3-palettes/releases/download/v20210430/dsl.jar</jar>
+      </files>
+    </dependency>
+    <dependency>
+      <!--
+      Bullwinkle
+      -->
+      <name>Bullwinkle</name>
+      <classname>ca.uqac.lif.bullwinkle.BnfParser</classname>
+      <files>
+        <zip>https://github.com/sylvainhalle/Bullwinkle/releases/download/v1.4.5/bullwinkle-1.4.5.zip</zip>
+      </files>
+      <bundle>false</bundle>
+    </dependency>
   </dependencies>
 </build>
