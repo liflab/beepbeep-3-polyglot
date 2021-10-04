@@ -157,7 +157,7 @@ public class LolaInterpreter extends ca.uqac.lif.cep.dsl.MultilineGroupProcessor
     Passthrough pt = forkInput(s_name);
     Connector.connect(pt, off);
     // sf.registerNotifiable(off);
-    return add(off);
+    return add(pt, off);
   }
 
   @Builds(rule = "<plus>", pop = true, clean = true)

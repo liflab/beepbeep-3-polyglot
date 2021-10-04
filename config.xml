@@ -57,7 +57,7 @@
       <name>BeepBeep 3 Core</name>
       <classname>ca.uqac.lif.cep.Processor</classname>
       <files>
-        <zip>https://github.com/liflab/beepbeep-3/releases/download/v0.10.2-alpha/beepbeep-3-0.10.2-alpha.zip</zip>
+        <zip>https://github.com/liflab/beepbeep-3/releases/download/v0.10.6-alpha/beepbeep-3-0.10.6-alpha.zip</zip>
       </files>
       <bundle>false</bundle>
     </dependency>
@@ -70,6 +70,39 @@
       <bundle>false</bundle>
       <files>
         <jar>https://github.com/liflab/beepbeep-3-palettes/releases/download/v20210430/dsl.jar</jar>
+      </files>
+    </dependency>
+    <dependency>
+      <!--
+      LTL palette
+      -->
+      <name>BeepBeep LTL palette</name>
+      <classname>ca.uqac.lif.cep.ltl.After</classname>
+      <bundle>false</bundle>
+      <files>
+        <jar>https://github.com/liflab/beepbeep-3-palettes/releases/download/v20210430/ltl.jar</jar>
+      </files>
+    </dependency>
+    <dependency>
+      <!--
+      FSM palette
+      -->
+      <name>BeepBeep FSM palette</name>
+      <classname>ca.uqac.lif.cep.fsm.MooreMachine</classname>
+      <bundle>false</bundle>
+      <files>
+        <jar>https://github.com/liflab/beepbeep-3-palettes/releases/download/v20210430/fsm.jar</jar>
+      </files>
+    </dependency>
+    <dependency>
+      <!--
+      XML palette
+      -->
+      <name>BeepBeep XML palette</name>
+      <classname>ca.uqac.lif.cep.xml.ParseXml</classname>
+      <bundle>false</bundle>
+      <files>
+        <jar>https://github.com/liflab/beepbeep-3-palettes/releases/download/v20210430/xml.jar</jar>
       </files>
     </dependency>
     <dependency>

@@ -57,3 +57,4 @@ Source/**/.cproject
 Source/**/.buildpath
 
 *.zip
+/.metadata/
